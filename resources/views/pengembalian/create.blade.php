@@ -22,46 +22,33 @@
                         <div class="col-md-6">
                             <table class="table table-borderless">
                                 <tr>
-                                    <th width="200">No Peminjaman</th>
-                                    <td>{{ isset($peminjaman) ? ($peminjaman instanceof \App\Models\PeminjamanSiswa ? $peminjaman->NoPinjamM : $peminjaman->NoPinjamN) : '-' }}</td>
+                                    <th width="200">No Kembali</th>
+                                    <td>{{ isset($nomorKembali) ? $nomorKembali : '-' }}</td>
                                 </tr>
                                 <tr>
+                                    <th width="200">No Pinjam</th>
+                                    <td>{{ isset($peminjaman) ? ($peminjaman instanceof \App\Models\PeminjamanSiswa ? $peminjaman->NoPinjamM : $peminjaman->NoPinjamN) : '-' }}</td>
+                                </tr>
+                                 <tr>
+                                    <th width="200">Kode Petugas</th>
+                                    <td>{{ isset($kodePetugas) ? $kodePetugas : '-' }}</td>
+                                </tr>
+                                {{-- <tr>
                                     <th>Tipe Anggota</th>
                                     <td>{{ $peminjaman instanceof \App\Models\PeminjamanSiswa ? 'Siswa' : 'Non-Siswa' }}</td>
                                 </tr>
                                 <tr>
                                     <th>Nama Anggota</th>
                                     <td>{{ $peminjaman->anggota->NamaAnggota }}</td>
-                                </tr>
+                                </tr> --}}
                                 <tr>
                                     <th>Tanggal Pinjam</th>
                                     <td>{{ $peminjaman->TglPinjam }}</td>
                                 </tr>
-                                <tr>
+                                {{-- <tr>
                                     <th>Batas Kembali</th>
                                     <td>{{ $peminjaman->TglJatuhTempo }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Status</th>
-                                    <td>
-                                        @php
-                                            $today = \Carbon\Carbon::now();
-                                            $dueDate = \Carbon\Carbon::parse($peminjaman->TglJatuhTempo);
-                                            $isLate = $today->gt($dueDate);
-                                        @endphp
-                                        @if($isLate)
-                                            <span class="badge bg-danger">Terlambat ({{ $today->diffInDays($dueDate) }} hari)</span>
-                                        @else
-                                            <span class="badge bg-warning">Dipinjam</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                                @if($isLate)
-                                <tr>
-                                    <th>Denda</th>
-                                    <td>Rp {{ number_format($totalDenda, 0, ',', '.') }}</td>
-                                </tr>
-                                @endif
+                                </tr> --}}
                             </table>
                         </div>
                     </div>
@@ -72,7 +59,7 @@
                         <input type="hidden" name="peminjaman_id" value="{{ isset($peminjaman) ? ($peminjaman instanceof \App\Models\PeminjamanSiswa ? $peminjaman->NoPinjamM : $peminjaman->NoPinjamN) : '' }}">
                         <input type="hidden" name="Denda" id="Denda" value="0">
 
-                        <div class="table-responsive mb-3">
+                        {{-- <div class="table-responsive mb-3">
                             <table class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
@@ -86,12 +73,12 @@
                                     <tr>
                                         <td>{{ $detail->KodeBuku }}</td>
                                         <td>{{ $detail->buku->Judul }}</td>
-                                        <td>{{ $detail->JumlahBuku }}</td>
+                                        <td>{{ $detail->Jumlah }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
                             </table>
-                        </div>
+                        </div> --}}
 
                         <div class="row mb-3">
                             <div class="col-md-6">
@@ -100,12 +87,12 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3">
+                        {{-- <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Status</label>
                                 <span id="statusKembali" class="form-text"></span>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <div class="row mb-3" id="rowDenda" style="display:none;">
                             <div class="col-md-6">

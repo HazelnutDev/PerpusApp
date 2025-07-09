@@ -32,8 +32,8 @@
                                         <p class="form-control-static fw-semibold">{{ $anggotaNonSiswa->NamaAnggota }}</p>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label text-muted">Jabatan</label>
-                                        <p class="form-control-static fw-semibold">{{ $anggotaNonSiswa->Jabatan }}</p>
+                                        <label class="form-label text-muted">Pekerjaan</label>
+                                        <p class="form-control-static fw-semibold">{{ $anggotaNonSiswa->Pekerjaan }}</p>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label text-muted">Tanggal Lahir</label>

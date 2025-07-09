@@ -24,7 +24,7 @@ class AnggotaNonSiswaFactory extends Factory
             'Dr. Sri Wahyuni, M.Pd'
         ];
 
-        $jabatan = [
+        $Pekerjaan = [
             'Guru Teknologi Informasi',
             'Guru Matematika'
         ];
@@ -42,7 +42,7 @@ class AnggotaNonSiswaFactory extends Factory
             'NoAnggotaN' => 'N' . str_pad(self::$noAnggota++, 3, '0', STR_PAD_LEFT),
             'NIP' => $nip[$index],
             'NamaAnggota' => $namaGuru[$index],
-            'Jabatan' => $jabatan[$index],
+            'Pekerjaan' => $Pekerjaan[$index],
             'JenisKelamin' => $index % 2 == 0 ? 'L' : 'P', 
             'TanggalLahir' => $tanggalLahir->format('d-m-Y'),
             'Alamat' => $this->faker->streetAddress() . ', ' . $this->faker->city(),

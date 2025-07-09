@@ -21,7 +21,7 @@
                                 {{-- Kode Buku --}}
                                 <div class="mb-3">
                                     <label class="form-label" for="KodeBuku">Kode Buku</label>
-                                    <input type="text" class="form-control @error('KodeBuku') is-invalid @enderror" id="KodeBuku" name="KodeBuku" value="{{ old('KodeBuku', $buku->KodeBuku) }}" required readonly />
+                                    <input type="text" class="form-control @error('KodeBuku') is-invalid @enderror" id="KodeBuku" name="KodeBuku" value="{{ old('KodeBuku', $buku->KodeBuku) }}" readonly />
                                     @error('KodeBuku')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -65,8 +65,7 @@
                             </div>
 
                             <div class="col-md-6">
-
-                                {{-- Tahun Terbit --}}
+                                 {{-- Tahun Terbit --}}
                                 <div class="mb-3">
                                     <label class="form-label" for="TahunTerbit">Tahun Terbit</label>
                                     <input type="number" class="form-control @error('TahunTerbit') is-invalid @enderror" id="TahunTerbit" name="TahunTerbit" value="{{ old('TahunTerbit', $buku->TahunTerbit ? $buku->TahunTerbit : '') }}" required />
@@ -75,6 +74,15 @@
                                     @enderror
                                 </div>
 
+                                {{-- Deskripsi --}}
+                                <div class="mb-3">
+                                    <label class="form-label" for="Deskripsi">Deskripsi</label>
+                                    <textarea class="form-control @error('Deskripsi') is-invalid @enderror" name="Deskripsi" id="Deskripsi" rows="4">{{ old('Deskripsi', $buku->Deskripsi ? $buku->Deskripsi : '') }}</textarea>
+                                    @error('Deskripsi')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                
                                 {{-- ISBN --}}
                                 <div class="mb-3">
                                     <label class="form-label" for="ISBN">ISBN</label>

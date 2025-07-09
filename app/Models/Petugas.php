@@ -3,48 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Petugas extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'petugas';
     protected $primaryKey = "KodePetugas";
     public $incrementing = false;
     protected $keyType = 'string';
-    
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'Password',
-        'remember_token',
-    ];
-    
-    /**
-     * Get the name of the unique identifier for the user.
-     *
-     * @return string
-     */
-    public function getAuthIdentifierName()
-    {
-        return 'KodePetugas';
-    }
-    
-    /**
-     * Get the password for the user.
-     *
-     * @return string
-     */
-    public function getAuthPassword()
-    {
-        return $this->Password;
-    }
-    
     protected $fillable = [
         'KodePetugas',
         'Username',
@@ -52,15 +22,25 @@ class Petugas extends Authenticatable
         'Password',
         'Role'
     ];
-    
     protected $casts = [
-        'Role' => 'string',
+        'Role'=> 'string',
     ];
-
+    protected $hidden = [
+        'Password', 
+        'remember_token',
+    ];
     /**
      * The column name used for authentication username
      */
     public $username = 'Username';
+
+    /**
+     * Get the password for the user.
+     */
+    public function getAuthPassword()
+    {
+        return $this->Password;
+    }
     
     public function peminjamanSiswa(): HasMany
     {

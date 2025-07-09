@@ -74,7 +74,7 @@
                                     <tr>
                                         <td>{{ $detail->KodeBuku }}</td>
                                         <td>{{ $detail->buku->Judul }}</td>
-                                        <td>{{ $detail->JumlahBuku }}</td>
+                                        <td>{{ $detail->Jumlah }}</td>
                                     </tr>
                                     @endforeach
                                 @else

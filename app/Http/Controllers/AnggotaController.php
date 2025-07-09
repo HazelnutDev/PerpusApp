@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Anggota;
-use App\Models\Buku;
 use Illuminate\Http\Request;
+use App\Helpers\KodeGenerator;
 
 class AnggotaController extends Controller
 {
+    protected function generateNoAnggota (){
+        return KodeGenerator::generate(Anggota::class, 'NoAnggotaM', 'M', 3);
+    }
     public function index()
     {
         $anggota = Anggota::latest()->paginate(10);
@@ -16,11 +19,13 @@ class AnggotaController extends Controller
 
     public function create()
     {
-        return view('anggota.create');
+        $noAnggota = $this->generateNoAnggota();
+        return view('anggota.create', compact("noAnggota"));
     }
 
     public function store(Request $request)
-    {
+    {   
+        // dd($request->all());
         $request->validate([
             'NIS' => 'required|string|max:255|unique:anggota',
             'NamaAnggota' => 'required|string|max:255',
@@ -33,18 +38,8 @@ class AnggotaController extends Controller
             'NoTelpOrtu' => 'required|string|max:10',
 
         ]);
-        $lastAnggota = Anggota::orderBy('NoAnggotaM', 'desc')->first();
-
-        if ($lastAnggota) {
-            $lastAnggota = intval(substr($lastAnggota->NoAnggota, 1));
-            $newAnggota = $lastAnggota + 1;
-        } else {
-            $newAnggota = 1;
-        }
-        
-
-        $noAnggota = 'M' . str_pad($newAnggota, 1, '0', STR_PAD_LEFT);
-        $request->merge(['NoAnggotaM' => $noAnggota]);
+        $NoAnggota = $this->generateNoAnggota();
+        $request->merge(['NoAnggotaM' => $NoAnggota]);
 
         Anggota::create($request->all());
         return redirect()->route('anggota.index')->with('success', 'Anggota berhasil ditambahkan');
@@ -62,15 +57,19 @@ class AnggotaController extends Controller
         return view('anggota.edit', compact('anggota'));
     }
 
-    public function update(Request $request, Anggota $anggota)
+    public function update(Request $request, $id)
     {
+        $anggota = Anggota::findOrFail($id);
         $request->validate([
-            'NIS' => 'required|string|max:255|unique:anggota,NIS,' . $anggota->id,
-            'Nama' => 'required|string|max:255',
+            'NIS' => 'required|string|max:255|unique:anggota,NIS,' . $anggota->NoAnggotaM . ',NoAnggotaM',
+            'NamaAnggota' => 'required|string|max:255',
+            'TanggalLahir' => 'required|date',
             'JenisKelamin' => 'required|in:L,P',
             'NoTelp' => 'required|string|max:15',
             'Alamat' => 'required|string',
             'Kelas' => 'required|string|max:10',
+            'NamaOrtu' => 'required|string|max:10',
+            'NoTelpOrtu' => 'required|string|max:10',
         ]);
 
         $anggota->update($request->all());

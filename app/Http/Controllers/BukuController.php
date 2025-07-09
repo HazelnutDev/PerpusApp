@@ -15,7 +15,12 @@ class BukuController extends Controller
 
     public function create()
     {
-        return view('buku.create');
+        $lastBook = Buku::orderBy('KodeBuku', 'desc')->first();
+        $newNumber = $lastBook ? intval(substr($lastBook->KodeBuku, 1)) + 1 : 1;
+        $kodeBuku = 'B' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+
+        return view('buku.create', compact('kodeBuku'));
+        // return view('buku.create');
     }
 
     public function store(Request $request)
@@ -69,7 +74,7 @@ class BukuController extends Controller
             'ISBN' => 'nullable|string|unique:buku,ISBN,' . $buku->KodeBuku . ',KodeBuku',
             'Stok' => 'required|integer|min:0',
         ]);
-
+        
         $buku->update($request->all());
         return redirect()->route('buku.index')->with('success', 'Buku berhasil diperbarui');
     }

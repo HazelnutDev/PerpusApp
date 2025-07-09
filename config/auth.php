@@ -37,13 +37,13 @@ return [
 
     'guards' => [
         'web' => [
-            'driver' => 'session',
-            'provider' => 'users',
-        ],
+        'driver' => 'session',
+        'provider' => 'users',
+    ],
 
-        'petugas' => [
-            'driver' => 'session',
-            'provider' => 'petugas',
+    'petugas' => [
+        'driver' => 'session',
+        'provider' => 'petugas',
         ],
     ],
 
@@ -68,13 +68,13 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Petugas::class,
+            'model' => env('AUTH_MODEL', App\Models\Petugas::class),
         ],
 
-        'petugas' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\Petugas::class,
-        ],
+        // 'users' => [
+        //     'driver' => 'database',
+        //     'table' => 'users',
+        // ],
     ],
 
     /*

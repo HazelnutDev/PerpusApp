@@ -15,7 +15,8 @@ class DetailPeminjamanNonSiswa extends Model
     protected $fillable = [
         'NoPinjamN',
         'KodeBuku',
-        'KodePetugas'
+        'KodePetugas',
+        'Jumlah'
     ];
 
     public function peminjaman(): BelongsTo

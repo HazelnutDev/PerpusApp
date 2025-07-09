@@ -1,4 +1,4 @@
-@extends('layouts.master')
+{{-- @extends('layouts.master')
 
 @section('content')
 <div class="container">
@@ -7,7 +7,9 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Tambah Detail Peminjaman</h5>
-                    <a href="{{ route('peminjaman.show', $peminjaman->id) }}" class="btn btn-secondary">Kembali</a>
+                    <a href="{{ route('peminjaman.show', [
+    'peminjaman' => $peminjaman instanceof \App\Models\PeminjamanSiswa ? $peminjaman->NoPinjamM : $peminjaman->NoPinjamN
+]) }}" class="btn btn-secondary">Kembali</a>
                 </div>
 
                 <div class="card-body">
@@ -68,7 +70,9 @@
 
                         <div class="mt-4">
                             <button type="submit" class="btn btn-primary">Simpan</button>
-                            <a href="{{ route('peminjaman.show', $peminjaman->id) }}" class="btn btn-secondary">Batal</a>
+                            <a href="{{ route('peminjaman.show', [
+    'peminjaman' => $peminjaman instanceof \App\Models\PeminjamanSiswa ? $peminjaman->NoPinjamM : $peminjaman->NoPinjamN
+]) }}" class="btn btn-secondary">Batal</a>
                         </div>
                     </form>
                 </div>
@@ -98,4 +102,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endpush
-@endsection
+@endsection --}}

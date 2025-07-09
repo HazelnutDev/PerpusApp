@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('NoPinjamM');
             $table->string('KodeBuku');
             $table->string('KodePetugas');
+            $table->unsignedTinyInteger('Jumlah')->default(1);
             $table->timestamps();
 
             $table->foreign('NoPinjamM')->references('NoPinjamM')->on('peminjamen_header_siswa')->onDelete('cascade');
@@ -28,6 +29,8 @@ return new class extends Migration
             $table->string('NoPinjamN');
             $table->string('KodeBuku');
             $table->string('KodePetugas');
+            $table->unsignedTinyInteger('Jumlah')->default(1);
+
             $table->timestamps();
 
             $table->foreign('NoPinjamN')->references('NoPinjamN')->on('peminjamen_header_non_siswa')->onDelete('cascade');

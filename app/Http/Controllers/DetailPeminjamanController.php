@@ -102,13 +102,15 @@ class DetailPeminjamanController extends Controller
                 DetailPeminjamanSiswa::create([
                     'NoPinjamM' => $peminjaman->NoPinjamM,
                     'KodeBuku' => $buku->KodeBuku,
-                    'KodePetugas' => Auth::user()->KodePetugas
+                    'KodePetugas' => Auth::user()->KodePetugas,
+                    'Jumlah' => $request->jumlah
                 ]);
             } else {
                 DetailPeminjamanNonSiswa::create([
                     'NoPinjamN' => $peminjaman->NoPinjamN,
                     'KodeBuku' => $buku->KodeBuku,
-                    'KodePetugas' => Auth::user()->KodePetugas
+                    'KodePetugas' => Auth::user()->KodePetugas,
+                    'Jumlah' => $request->jumlah
                 ]);
             }
 
@@ -130,33 +132,51 @@ class DetailPeminjamanController extends Controller
      * @param Request $request
      * @return RedirectResponse
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(string $no_pinjam, string $kode_buku): RedirectResponse
     {
-        $request->validate([
-            'no_pinjam' => 'required|string',
-            'kode_buku' => 'required|string'
-        ]);
+        // $request->validate([
+        //     'no_pinjam' => 'required|string',
+        //     'kode_buku' => 'required|string'
+        // ]);
 
         DB::beginTransaction();
         try {
             // Check if this is a student loan or non-student loan based on loan number format
-            if (strpos($request->no_pinjam, 'PJM-S') === 0) {
-                $peminjaman = PeminjamanSiswa::with('detailPeminjaman')
-                    ->where('NoPinjamM', $request->no_pinjam)
-                    ->firstOrFail();
+            // if (strpos($request->no_pinjam, 'PJM-S') === 0) {
+            //     $peminjaman = PeminjamanSiswa::with('detailPeminjaman')
+            //         ->where('NoPinjamM', $request->no_pinjam)
+            //         ->firstOrFail();
                 
-                $detail = DetailPeminjamanSiswa::where('NoPinjamM', $request->no_pinjam)
-                    ->where('KodeBuku', $request->kode_buku)
-                    ->firstOrFail();
-            } else {
-                $peminjaman = PeminjamanNonSiswa::with('detailPeminjaman')
-                    ->where('NoPinjamN', $request->no_pinjam)
-                    ->firstOrFail();
+            //     $detail = DetailPeminjamanSiswa::where('NoPinjamM', $request->no_pinjam)
+            //         ->where('KodeBuku', $request->kode_buku)
+            //         ->firstOrFail();
+            // } else {
+            //     $peminjaman = PeminjamanNonSiswa::with('detailPeminjaman')
+            //         ->where('NoPinjamN', $request->no_pinjam)
+            //         ->firstOrFail();
                 
-                $detail = DetailPeminjamanNonSiswa::where('NoPinjamN', $request->no_pinjam)
-                    ->where('KodeBuku', $request->kode_buku)
-                    ->firstOrFail();
-            }
+            //     $detail = DetailPeminjamanNonSiswa::where('NoPinjamN', $request->no_pinjam)
+            //         ->where('KodeBuku', $request->kode_buku)
+            //         ->firstOrFail();
+            // }
+            if (strpos($no_pinjam, 'PJM-S') === 0) {
+        $peminjaman = PeminjamanSiswa::with('detailPeminjaman')
+            ->where('NoPinjamM', $no_pinjam)
+            ->firstOrFail();
+
+        $detail = DetailPeminjamanSiswa::where('NoPinjamM', $no_pinjam)
+            ->where('KodeBuku', $kode_buku)
+            ->firstOrFail();
+        } else {
+        $peminjaman = PeminjamanNonSiswa::with('detailPeminjaman')
+            ->where('NoPinjamN', $no_pinjam)
+            ->firstOrFail();
+
+        $detail = DetailPeminjamanNonSiswa::where('NoPinjamN', $no_pinjam)
+            ->where('KodeBuku', $kode_buku)
+            ->firstOrFail();
+         }
+
 
             if ($peminjaman->status !== 'dipinjam') {
                 return back()->with('error', 'Tidak dapat menghapus detail untuk peminjaman yang sudah selesai');
@@ -170,7 +190,7 @@ class DetailPeminjamanController extends Controller
             $detail->delete();
 
             DB::commit();
-            return redirect()->route('peminjaman.show', $request->no_pinjam)
+            return redirect()->route('peminjaman.show', $no_pinjam)
                 ->with('success', 'Detail peminjaman berhasil dihapus');
         } catch (\Exception $e) {
             DB::rollback();

@@ -29,6 +29,14 @@ class PeminjamanNonSiswa extends Model
         'TglPinjam',
         'TglJatuhTempo'
     ];
+    public function getStatusAttribute(){
+    if ($this->pengembalian && $this->pengembalian->TglKembali) {
+        return 'dikembalikan';
+    } elseif ($this->TglJatuhTempo < now()) {
+        return 'terlambat';
+    }
+    return 'dipinjam';
+}
 
     public function anggota(): BelongsTo
     {

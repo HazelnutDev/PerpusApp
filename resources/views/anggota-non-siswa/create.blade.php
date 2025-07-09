@@ -15,7 +15,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label" for="NoAnggotaN">No Anggota</label>
-                                    <input type="text" class="form-control @error('NoAnggotaN') is-invalid @enderror" id="NoAnggotaN" name="NoAnggotaN" value="{{ old('NoAnggotaN') }}" placeholder="Masukkan nomor anggota" />
+                                    <input type="text" class="form-control @error('NoAnggotaN') is-invalid @enderror" id="NoAnggotaN" name="NoAnggotaN" value="{{ $noAnggota }}" required readonly />
                                     @error('NoAnggotaN')
                                     <div class="invalid-feedback">
                                         {{ $message }}
@@ -32,7 +32,7 @@
                                     @enderror
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label" for="NamaAnggota">Nama Anggota</label>
+                                    <label class="form-label" for="NamaAnggota">Nama Lengkap</label>
                                     <input type="text" class="form-control @error('NamaAnggota') is-invalid @enderror" id="NamaAnggota" name="NamaAnggota" value="{{ old('NamaAnggota') }}" placeholder="Masukkan nama anggota" />
                                     @error('NamaAnggota')
                                     <div class="invalid-feedback">
@@ -41,9 +41,18 @@
                                     @enderror
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label" for="Jabatan">Jabatan</label>
-                                    <input type="text" class="form-control @error('Jabatan') is-invalid @enderror" id="Jabatan" name="Jabatan" value="{{ old('Jabatan') }}" placeholder="Masukkan jabatan" />
-                                    @error('Jabatan')
+                                    <label class="form-label" for="Pekerjaan">Pekerjaan</label>
+                                    <input type="text" class="form-control @error('Pekerjaan') is-invalid @enderror" id="Pekerjaan" name="Pekerjaan" value="{{ old('Pekerjaan') }}" placeholder="Masukkan Pekerjaan" />
+                                    @error('Pekerjaan')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                    @enderror
+                                </div>
+                                   <div class="mb-3">
+                                    <label class="form-label" for="TanggalLahir">Tanggal Lahir</label>
+                                    <input type="date" class="form-control @error('TanggalLahir') is-invalid @enderror" id="TanggalLahir" name="TanggalLahir" value="{{ old('TanggalLahir') }}" />
+                                    @error('TanggalLahir')
                                     <div class="invalid-feedback">
                                         {{ $message }}
                                     </div>
@@ -52,47 +61,29 @@
                                 <!-- Tambahkan field lain sesuai kebutuhan -->
                             </div>
                             <div class="col-md-6">
-                                <!-- Field tambahan seperti TTL, Alamat, Kode Pos, No Telp, Tgl Daftar -->
-                                <div class="mb-3">
-                                    <label class="form-label" for="TTL">Tanggal Lahir</label>
-                                    <input type="date" class="form-control @error('TTL') is-invalid @enderror" id="TTL" name="TTL" value="{{ old('TTL') }}" />
-                                    @error('TTL')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>
-                                <div class="mb-3">
+                                <!-- Field tambahan seperti TanggalLahir, Alamat, No Telp, Tgl Daftar -->
+                                
+                               <div class="mb-3">
                                     <label class="form-label" for="Alamat">Alamat</label>
-                                    <input type="text" class="form-control @error('Alamat') is-invalid @enderror" id="Alamat" name="Alamat" value="{{ old('Alamat') }}" placeholder="Masukkan alamat" />
+                                    <textarea class="form-control @error('Alamat') is-invalid @enderror" name="Alamat" id="Alamat" rows="5">{{ old('Alamat') }}</textarea>
                                     @error('Alamat')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                                       <div class="mb-3">
+                                    <label class="form-label" for="JenisKelamin">Jenis Kelamin</label>
+                                    <select class="form-control @error('JenisKelamin') is-invalid @enderror" id="JenisKelamin" name="JenisKelamin" required>
+                                        <option value="L" {{ old('JenisKelamin') == 'L' ? 'selected' : '' }}>Laki-laki</option>
+                                        <option value="P" {{ old('JenisKelamin') == 'P' ? 'selected' : '' }}>Perempuan</option>
+                                    </select>
+                                    @error('JenisKelamin')
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label" for="KodePos">Kode Pos</label>
-                                    <input type="text" class="form-control @error('KodePos') is-invalid @enderror" id="KodePos" name="KodePos" value="{{ old('KodePos') }}" placeholder="Masukkan kode pos" />
-                                    @error('KodePos')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="NoTelpHp">No Telp/HP</label>
-                                    <input type="text" class="form-control @error('NoTelpHp') is-invalid @enderror" id="NoTelpHp" name="NoTelpHp" value="{{ old('NoTelpHp') }}" placeholder="Masukkan no telp/hp" />
-                                    @error('NoTelpHp')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="TglDaftar">Tanggal Daftar</label>
-                                    <input type="date" class="form-control @error('TglDaftar') is-invalid @enderror" id="TglDaftar" name="TglDaftar" value="{{ old('TglDaftar') }}" />
-                                    @error('TglDaftar')
+                                    <label class="form-label" for="NoTelp">No Telp</label>
+                                    <input type="text" class="form-control @error('NoTelp') is-invalid @enderror" id="NoTelp" name="NoTelp" value="{{ old('NoTelp') }}" placeholder="Masukkan no telp/hp" />
+                                    @error('NoTelp')
                                     <div class="invalid-feedback">
                                         {{ $message }}
                                     </div>

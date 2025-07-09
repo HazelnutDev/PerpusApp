@@ -87,7 +87,7 @@
                         </div>
                     </div>
 
-                    <h6 class="fw-bold">Detail Buku</h6>
+                    <h6 class="fw-bold">Detail Buku Yang Di Pinjam</h6>
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped">
                             <thead class="table-light">
@@ -95,10 +95,13 @@
                                     <th>Kode Buku</th>
                                     <th>Judul Buku</th>
                                     <th>Jumlah Buku</th>
-                                    @if (isset($peminjaman) && $peminjaman->status === 'dipinjam')
-                                    @dd($peminjaman)
-                                        <th class="text-center">Aksi</th>
-                                    @endif
+                                       @if (Auth::user()->Role === 'admin')
+                        
+                                       @if (isset($peminjaman) && $peminjaman->status === 'dipinjam')
+                                       {{-- @dd($peminjaman) --}}
+                                           <th class="text-center">Aksi</th>
+                                       @endif
+                                        @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -107,20 +110,21 @@
                                         <tr>
                                             <td>{{ $detail->KodeBuku }}</td>
                                             <td>{{ $detail->buku->Judul }}</td>
-                                            {{-- <td>{{ $detail->JumlahBuku }}</td> --}}
-                                            <td>{{ $detail->stok }}</td>
-                                            @if ($peminjaman->status === 'dipinjam')
-                                                <td class="text-center">
-                                                    <form
-                                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');"
-                                                        action="{{ route('detail-peminjaman.destroy', ['no_pinjam' => $peminjaman instanceof \App\Models\PeminjamanSiswa ? $detail->NoPinjamM : $detail->NoPinjamN, 'kode_buku' => $detail->KodeBuku]) }}"
-                                                        method="POST" class="d-inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                                                    </form>
-                                                </td>
-                                            @endif
+                                            <td>{{ $detail->Jumlah }}</td>
+                                               @if (Auth::user()->Role === 'admin')
+                                               @if ($peminjaman->status === 'dipinjam')
+                                                   <td class="text-center">
+                                                       <form
+                                                           onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');"
+                                                           action="{{ route('detail-peminjaman.destroy.custom', ['no_pinjam' => $peminjaman instanceof \App\Models\PeminjamanSiswa ? $detail->NoPinjamM : $detail->NoPinjamN, 'kode_buku' => $detail->KodeBuku]) }}"
+                                                           method="POST" class="d-inline">
+                                                           @csrf
+                                                           @method('DELETE')
+                                                           <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                                       </form>
+                                                   </td>
+                                               @endif
+                                                @endif
                                         </tr>
                                     @endforeach
                                 @else
@@ -134,9 +138,10 @@
 
                     @if (isset($peminjaman) && $peminjaman->status === 'dipinjam')
                         <div class="d-flex justify-content-between mt-3">
-                            <a href="{{ route('detail-peminjaman.create', ['peminjaman_id' => $peminjaman instanceof \App\Models\PeminjamanSiswa ? $peminjaman->NoPinjamM : $peminjaman->NoPinjamN]) }}" class="btn btn-primary">
+                            {{-- <a href="{{ route('detail-peminjaman.create', ['peminjaman_id' => $peminjaman instanceof \App\Models\PeminjamanSiswa ? $peminjaman->NoPinjamM : $peminjaman->NoPinjamN]) }}" class="btn btn-primary">
                                 Tambah Buku
-                            </a>
+                            </a> --}}
+                            <a href=""></a>
                             <a href="{{ route('pengembalian.create', ['peminjaman_id' => $peminjaman instanceof \App\Models\PeminjamanSiswa ? $peminjaman->NoPinjamM : $peminjaman->NoPinjamN]) }}" class="btn btn-success">
                                 Proses Pengembalian
                             </a>
@@ -162,6 +167,7 @@
             @endphp
             <input type="hidden" name="Denda" value="{{ $totalDenda }}">
             
+            @if (isset($peminjaman) && $peminjaman->status === 'dipinjam')    
             <button type="submit" class="btn btn-success">
                 Proses Pengembalian
                 @if($hariTerlambat > 0)
@@ -170,6 +176,7 @@
                     </small>
                 @endif
             </button>
+            @endif
         </form>
     </div>
                     @endif

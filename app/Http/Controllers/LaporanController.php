@@ -7,271 +7,505 @@ use App\Models\PeminjamanNonSiswa;
 use App\Models\Buku;
 use App\Models\Anggota;
 use App\Models\AnggotaNonSiswa;
+use App\Models\PengembalianSiswa;
+use App\Models\PengembalianNonSiswa;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanController extends Controller
 {
+    public function laporanBuku(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $buku = collect();
+        $message = null;
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $request->validate([
+                'start_date' => 'required|date|before_or_equal:end_date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+            ], [
+                'start_date.required' => 'Tanggal mulai wajib diisi.',
+                'end_date.required' => 'Tanggal akhir wajib diisi.',
+                'start_date.before_or_equal' => 'Tanggal mulai harus sebelum atau sama dengan tanggal akhir.',
+                'end_date.after_or_equal' => 'Tanggal akhir harus setelah atau sama dengan tanggal mulai.',
+            ]);
+
+            $startDateCarbon = Carbon::parse($startDate)->startOfDay();
+            $endDateCarbon = Carbon::parse($endDate)->endOfDay();
+
+            $buku = Buku::whereBetween('created_at', [$startDateCarbon, $endDateCarbon])
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            if ($buku->isEmpty()) {
+                $message = 'Data buku pada periode ini tidak ditemukan.';
+            }
+        }
+
+        return view('laporan.laporanBuku.index', compact('buku', 'startDate', 'endDate', 'message'));
+    }
+
+    public function cetakLaporanBuku(Request $request)
+    {
+        $startDate = $request->input('start_date', now()->startOfMonth()->format('Y-m-d'));
+        $endDate = $request->input('end_date', now()->format('Y-m-d'));
+
+        $startDateCarbon = Carbon::parse($startDate)->startOfDay();
+        $endDateCarbon = Carbon::parse($endDate)->endOfDay();
+
+        $buku = Buku::whereBetween('created_at', [$startDateCarbon, $endDateCarbon])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $message = $buku->isEmpty() ? 'Data buku pada periode ini tidak ditemukan.' : null;
+
+        $pdf = Pdf::loadView('laporan.laporanBuku.cetak', compact('buku', 'startDate', 'endDate', 'message'));
+        return $pdf->stream('laporan-buku-' . $startDate . '-sd-' . $endDate . '.pdf');
+    }
+
+    public function laporanAnggota(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $anggota = collect();
+        $message = null;
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $request->validate([
+                'start_date' => 'required|date|before_or_equal:end_date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+            ], [
+                'start_date.required' => 'Tanggal mulai wajib diisi.',
+                'end_date.required' => 'Tanggal akhir wajib diisi.',
+                'start_date.before_or_equal' => 'Tanggal mulai harus sebelum atau sama dengan tanggal akhir.',
+                'end_date.after_or_equal' => 'Tanggal akhir harus setelah atau sama dengan tanggal mulai.',
+            ]);
+
+            $startDateCarbon = Carbon::parse($startDate)->startOfDay();
+            $endDateCarbon = Carbon::parse($endDate)->endOfDay();
+
+            $anggotaSiswa = Anggota::whereBetween('created_at', [$startDateCarbon, $endDateCarbon])
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($item) {
+                    $item->jenis = 'Siswa';
+                    return $item;
+                });
+
+            $anggotaNonSiswa = AnggotaNonSiswa::whereBetween('created_at', [$startDateCarbon, $endDateCarbon])
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($item) {
+                    $item->jenis = 'Non Siswa';
+                    return $item;
+                });
+
+            $anggota = $anggotaSiswa->concat($anggotaNonSiswa)->sortByDesc('created_at');
+
+            if ($anggota->isEmpty()) {
+                $message = 'Data anggota pada periode ini tidak ditemukan.';
+            }
+        }
+
+        return view('laporan.laporanAnggota.index', compact('anggota', 'startDate', 'endDate', 'message'));
+    }
+
+    public function cetakLaporanAnggota(Request $request)
+    {
+        $startDate = $request->input('start_date', now()->startOfMonth()->format('Y-m-d'));
+        $endDate = $request->input('end_date', now()->format('Y-m-d'));
+
+        $startDateCarbon = Carbon::parse($startDate)->startOfDay();
+        $endDateCarbon = Carbon::parse($endDate)->endOfDay();
+
+        $anggotaSiswa = Anggota::whereBetween('created_at', [$startDateCarbon, $endDateCarbon])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($item) {
+                $item->jenis = 'Siswa';
+                return $item;
+            });
+
+        $anggotaNonSiswa = AnggotaNonSiswa::whereBetween('created_at', [$startDateCarbon, $endDateCarbon])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($item) {
+                $item->jenis = 'Non Siswa';
+                return $item;
+            });
+
+        $anggota = $anggotaSiswa->concat($anggotaNonSiswa)->sortByDesc('created_at');
+
+        $message = $anggota->isEmpty() ? 'Data anggota pada periode ini tidak ditemukan.' : null;
+
+        $pdf = Pdf::loadView('laporan.laporanAnggota.cetak', compact('anggota', 'startDate', 'endDate', 'message'));
+        return $pdf->stream('laporan-anggota-' . $startDate . '-sd-' . $endDate . '.pdf');
+    }
+
     public function peminjaman(Request $request)
     {
-        $startDate = $request->start_date ? Carbon::parse($request->start_date) : Carbon::now()->startOfMonth();
-        $endDate = $request->end_date ? Carbon::parse($request->end_date) : Carbon::now();
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $peminjaman = collect();
+        $message = null;
 
-        // Get student loans
-        $peminjamanSiswa = PeminjamanSiswa::with(['anggota', 'detailPeminjaman.buku', 'petugas'])
-            ->whereBetween('TglPinjam', [$startDate, $endDate])
-            ->orderBy('TglPinjam', 'desc')
-            ->get();
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $request->validate([
+                'start_date' => 'required|date|before_or_equal:end_date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+            ], [
+                'start_date.required' => 'Tanggal mulai wajib diisi.',
+                'end_date.required' => 'Tanggal akhir wajib diisi.',
+                'start_date.before_or_equal' => 'Tanggal mulai harus sebelum atau sama dengan tanggal akhir.',
+                'end_date.after_or_equal' => 'Tanggal akhir harus setelah atau sama dengan tanggal mulai.',
+            ]);
 
-        // Get non-student loans
-        $peminjamanNonSiswa = PeminjamanNonSiswa::with(['anggota', 'detailPeminjaman.buku', 'petugas'])
-            ->whereBetween('TglPinjam', [$startDate, $endDate])
-            ->orderBy('TglPinjam', 'desc')
-            ->get();
+            $startDateCarbon = Carbon::parse($startDate)->startOfDay();
+            $endDateCarbon = Carbon::parse($endDate)->endOfDay();
 
-        // Combine the results
-        $peminjaman = $peminjamanSiswa->concat($peminjamanNonSiswa)->sortByDesc('TglPinjam');
+            $peminjamanSiswa = PeminjamanSiswa::with([
+                'anggota',
+                'petugas',
+                'detailPeminjaman.buku',
+                'detailPeminjaman.petugas'
+            ])
+                ->whereBetween('TglPinjam', [$startDateCarbon, $endDateCarbon])
+                ->orderBy('TglPinjam', 'desc')
+                ->get();
 
-        return view('laporan.peminjaman.index', compact('peminjaman', 'startDate', 'endDate'));
+            $peminjamanNonSiswa = PeminjamanNonSiswa::with([
+                'anggota',
+                'petugas',
+                'detailPeminjaman.buku',
+                'detailPeminjaman.petugas'
+            ])
+                ->whereBetween('TglPinjam', [$startDateCarbon, $endDateCarbon])
+                ->orderBy('TglPinjam', 'desc')
+                ->get();
+
+            $peminjaman = $peminjamanSiswa->concat($peminjamanNonSiswa)->sortByDesc('TglPinjam');
+
+            if ($peminjaman->isEmpty()) {
+                $message = 'Data peminjaman pada periode ini tidak ditemukan.';
+            }
+        }
+
+        return view('laporan.peminjaman.index', compact('peminjaman', 'startDate', 'endDate', 'message'));
     }
 
     public function cetakPeminjaman(Request $request)
     {
-        $startDate = $request->start_date ? Carbon::parse($request->start_date) : Carbon::now()->startOfMonth();
-        $endDate = $request->end_date ? Carbon::parse($request->end_date) : Carbon::now();
+        $startDate = $request->input('start_date', now()->startOfMonth()->format('Y-m-d'));
+        $endDate = $request->input('end_date', now()->format('Y-m-d'));
 
-        // Get student loans
-        $peminjamanSiswa = PeminjamanSiswa::with(['anggota', 'detailPeminjaman.buku', 'petugas'])
-            ->whereBetween('TglPinjam', [$startDate, $endDate])
+        $startDateCarbon = Carbon::parse($startDate)->startOfDay();
+        $endDateCarbon = Carbon::parse($endDate)->endOfDay();
+
+        $peminjamanSiswa = PeminjamanSiswa::with([
+            'anggota',
+            'petugas',
+            'detailPeminjaman.buku',
+            'detailPeminjaman.petugas'
+        ])
+            ->whereBetween('TglPinjam', [$startDateCarbon, $endDateCarbon])
             ->orderBy('TglPinjam', 'desc')
             ->get();
 
-        // Get non-student loans
-        $peminjamanNonSiswa = PeminjamanNonSiswa::with(['anggota', 'detailPeminjaman.buku', 'petugas'])
-            ->whereBetween('TglPinjam', [$startDate, $endDate])
+        $peminjamanNonSiswa = PeminjamanNonSiswa::with([
+            'anggota',
+            'petugas',
+            'detailPeminjaman.buku',
+            'detailPeminjaman.petugas'
+        ])
+            ->whereBetween('TglPinjam', [$startDateCarbon, $endDateCarbon])
             ->orderBy('TglPinjam', 'desc')
             ->get();
 
-        // Combine the results
         $peminjaman = $peminjamanSiswa->concat($peminjamanNonSiswa)->sortByDesc('TglPinjam');
 
-        $pdf = PDF::loadView('laporan.peminjaman.cetak', compact('peminjaman', 'startDate', 'endDate'));
-        return $pdf->stream('laporan-peminjaman.pdf');
+        $message = $peminjaman->isEmpty() ? 'Data peminjaman pada periode ini tidak ditemukan.' : null;
+
+        $pdf = Pdf::loadView('laporan.peminjaman.cetak', compact('peminjaman', 'startDate', 'endDate', 'message'));
+        return $pdf->stream('laporan-peminjaman-' . $startDate . '-sd-' . $endDate . '.pdf');
+    }
+
+    public function laporanPengembalian(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $pengembalian = collect();
+        $message = null;
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $request->validate([
+                'start_date' => 'required|date|before_or_equal:end_date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+            ], [
+                'start_date.required' => 'Tanggal mulai wajib diisi.',
+                'end_date.required' => 'Tanggal akhir wajib diisi.',
+                'start_date.before_or_equal' => 'Tanggal mulai harus sebelum atau sama dengan tanggal akhir.',
+                'end_date.after_or_equal' => 'Tanggal akhir harus setelah atau sama dengan tanggal mulai.',
+            ]);
+
+            $startDateCarbon = Carbon::parse($startDate)->startOfDay();
+            $endDateCarbon = Carbon::parse($endDate)->endOfDay();
+
+            $kembaliSiswa = PengembalianSiswa::with(['peminjaman.anggota', 'peminjaman.detailPeminjaman.buku', 'petugas'])
+                ->whereBetween('TglKembali', [$startDateCarbon, $endDateCarbon])
+                ->orderBy('TglKembali', 'desc')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'Nama' => $item->peminjaman->anggota->NamaAnggota ?? '-',
+                        'Jenis' => 'Siswa',
+                        'Judul' => $item->peminjaman->detailPeminjaman->pluck('buku.Judul')->implode(', ') ?? '-',
+                        'TglPinjam' => $item->peminjaman->TglPinjam ?? '-',
+                        'JatuhTempo' => $item->peminjaman->TglJatuhTempo ?? '-',
+                        'TglKembali' => $item->TglKembali,
+                        'Petugas' => $item->petugas->Nama ?? '-',
+                        'Denda' => $item->Denda,
+                    ];
+                });
+
+            $kembaliNonSiswa = PengembalianNonSiswa::with(['peminjaman.anggota', 'peminjaman.detailPeminjaman.buku', 'petugas'])
+                ->whereBetween('TglKembali', [$startDateCarbon, $endDateCarbon])
+                ->orderBy('TglKembali', 'desc')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'Nama' => $item->peminjaman->anggota->NamaAnggota ?? '-',
+                        'Jenis' => 'Non Siswa',
+                        'Judul' => $item->peminjaman->detailPeminjaman->pluck('buku.Judul')->implode(', ') ?? '-',
+                        'TglPinjam' => $item->peminjaman->TglPinjam ?? '-',
+                        'JatuhTempo' => $item->peminjaman->TglJatuhTempo ?? '-',
+                        'TglKembali' => $item->TglKembali,
+                        'Petugas' => $item->petugas->Nama ?? '-',
+                        'Denda' => $item->Denda,
+                    ];
+                });
+
+            $pengembalian = $kembaliSiswa->concat($kembaliNonSiswa)->sortByDesc('TglKembali');
+
+            if ($pengembalian->isEmpty()) {
+                $message = 'Data pengembalian pada periode ini tidak ditemukan.';
+            }
+        }
+
+        return view('laporan.laporanPengembalian.index', compact('pengembalian', 'startDate', 'endDate', 'message'));
+    }
+
+    public function cetakLaporanPengembalian(Request $request)
+    {
+        $startDate = $request->input('start_date', now()->startOfMonth()->format('Y-m-d'));
+        $endDate = $request->input('end_date', now()->format('Y-m-d'));
+
+        $startDateCarbon = Carbon::parse($startDate)->startOfDay();
+        $endDateCarbon = Carbon::parse($endDate)->endOfDay();
+
+        $kembaliSiswa = PengembalianSiswa::with(['peminjaman.anggota', 'peminjaman.detailPeminjaman.buku', 'petugas'])
+            ->whereBetween('TglKembali', [$startDateCarbon, $endDateCarbon])
+            ->orderBy('TglKembali', 'desc')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'Nama' => $item->peminjaman->anggota->NamaAnggota ?? '-',
+                    'Jenis' => 'Siswa',
+                    'Judul' => $item->peminjaman->detailPeminjaman->pluck('buku.Judul')->implode(', ') ?? '-',
+                    'TglPinjam' => $item->peminjaman->TglPinjam ?? '-',
+                    'JatuhTempo' => $item->peminjaman->TglJatuhTempo ?? '-',
+                    'TglKembali' => $item->TglKembali,
+                    'Petugas' => $item->petugas->Nama ?? '-',
+                    'Denda' => $item->Denda,
+                ];
+            });
+
+        $kembaliNonSiswa = PengembalianNonSiswa::with(['peminjaman.anggota', 'peminjaman.detailPeminjaman.buku', 'petugas'])
+            ->whereBetween('TglKembali', [$startDateCarbon, $endDateCarbon])
+            ->orderBy('TglKembali', 'desc')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'Nama' => $item->peminjaman->anggota->NamaAnggota ?? '-',
+                    'Jenis' => 'Non Siswa',
+                    'Judul' => $item->peminjaman->detailPeminjaman->pluck('buku.Judul')->implode(', ') ?? '-',
+                    'TglPinjam' => $item->peminjaman->TglPinjam ?? '-',
+                    'JatuhTempo' => $item->peminjaman->TglJatuhTempo ?? '-',
+                    'TglKembali' => $item->TglKembali,
+                    'Petugas' => $item->petugas->Nama ?? '-',
+                    'Denda' => $item->Denda,
+                ];
+            });
+
+        $pengembalian = $kembaliSiswa->concat($kembaliNonSiswa)->sortByDesc('TglKembali');
+
+        $message = $pengembalian->isEmpty() ? 'Data pengembalian pada periode ini tidak ditemukan.' : null;
+
+        $pdf = Pdf::loadView('laporan.laporanPengembalian.cetak', compact('pengembalian', 'startDate', 'endDate', 'message'));
+        return $pdf->stream('laporan-pengembalian-' . $startDate . '-sd-' . $endDate . '.pdf');
     }
 
     public function keterlambatan(Request $request)
     {
-        $startDate = $request->start_date ? Carbon::parse($request->start_date) : Carbon::now()->startOfMonth();
-        $endDate = $request->end_date ? Carbon::parse($request->end_date) : Carbon::now();
-        $today = Carbon::now();
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $keterlambatan = collect();
+        $message = null;
 
-        // Get late student loans
-        $keterlambatanSiswa = PeminjamanSiswa::with(['anggota', 'detailPeminjaman.buku', 'petugas'])
-            ->whereBetween('TglPinjam', [$startDate, $endDate])
-            ->where('TglJatuhTempo', '<', $today)
-            ->whereDoesntHave('pengembalian')
-            ->orderBy('TglPinjam', 'desc')
-            ->get();
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $request->validate([
+                'start_date' => 'required|date|before_or_equal:end_date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+            ], [
+                'start_date.required' => 'Tanggal mulai wajib diisi.',
+                'end_date.required' => 'Tanggal akhir wajib diisi.',
+                'start_date.before_or_equal' => 'Tanggal mulai harus sebelum atau sama dengan tanggal akhir.',
+                'end_date.after_or_equal' => 'Tanggal akhir harus setelah atau sama dengan tanggal mulai.',
+            ]);
 
-        // Get late non-student loans
-        $keterlambatanNonSiswa = PeminjamanNonSiswa::with(['anggota', 'detailPeminjaman.buku', 'petugas'])
-            ->whereBetween('TglPinjam', [$startDate, $endDate])
-            ->where('TglJatuhTempo', '<', $today)
-            ->whereDoesntHave('pengembalian')
-            ->orderBy('TglPinjam', 'desc')
-            ->get();
+            $startDateCarbon = Carbon::parse($startDate)->startOfDay();
+            $endDateCarbon = Carbon::parse($endDate)->endOfDay();
+            $today = Carbon::now();
 
-        // Combine the results
-        $keterlambatan = $keterlambatanSiswa->concat($keterlambatanNonSiswa)->sortByDesc('TglPinjam');
+            $keterlambatanSiswa = PeminjamanSiswa::with(['anggota', 'detailPeminjaman.buku', 'petugas'])
+                ->whereBetween('TglPinjam', [$startDateCarbon, $endDateCarbon])
+                ->where('TglJatuhTempo', '<', $today)
+                ->whereDoesntHave('pengembalian')
+                ->orderBy('TglPinjam', 'desc')
+                ->get();
 
-        return view('laporan.keterlambatan.index', compact('keterlambatan', 'startDate', 'endDate'));
+            $keterlambatanNonSiswa = PeminjamanNonSiswa::with(['anggota', 'detailPeminjaman.buku', 'petugas'])
+                ->whereBetween('TglPinjam', [$startDateCarbon, $endDateCarbon])
+                ->where('TglJatuhTempo', '<', $today)
+                ->whereDoesntHave('pengembalian')
+                ->orderBy('TglPinjam', 'desc')
+                ->get();
+
+            $keterlambatan = $keterlambatanSiswa->concat($keterlambatanNonSiswa)->sortByDesc('TglPinjam');
+
+            if ($keterlambatan->isEmpty()) {
+                $message = 'Data keterlambatan pada periode ini tidak ditemukan.';
+            }
+        }
+
+        return view('laporan.keterlambatan.index', compact('keterlambatan', 'startDate', 'endDate', 'message'));
     }
 
     public function cetakKeterlambatan(Request $request)
     {
-        $startDate = $request->start_date ? Carbon::parse($request->start_date) : Carbon::now()->startOfMonth();
-        $endDate = $request->end_date ? Carbon::parse($request->end_date) : Carbon::now();
+        $startDate = $request->input('start_date', now()->startOfMonth()->format('Y-m-d'));
+        $endDate = $request->input('end_date', now()->format('Y-m-d'));
         $today = Carbon::now();
 
-        // Get late student loans
+        $startDateCarbon = Carbon::parse($startDate)->startOfDay();
+        $endDateCarbon = Carbon::parse($endDate)->endOfDay();
+
         $keterlambatanSiswa = PeminjamanSiswa::with(['anggota', 'detailPeminjaman.buku', 'petugas'])
-            ->whereBetween('TglPinjam', [$startDate, $endDate])
+            ->whereBetween('TglPinjam', [$startDateCarbon, $endDateCarbon])
             ->where('TglJatuhTempo', '<', $today)
             ->whereDoesntHave('pengembalian')
             ->orderBy('TglPinjam', 'desc')
             ->get();
 
-        // Get late non-student loans
         $keterlambatanNonSiswa = PeminjamanNonSiswa::with(['anggota', 'detailPeminjaman.buku', 'petugas'])
-            ->whereBetween('TglPinjam', [$startDate, $endDate])
+            ->whereBetween('TglPinjam', [$startDateCarbon, $endDateCarbon])
             ->where('TglJatuhTempo', '<', $today)
             ->whereDoesntHave('pengembalian')
             ->orderBy('TglPinjam', 'desc')
             ->get();
 
-        // Combine the results
         $keterlambatan = $keterlambatanSiswa->concat($keterlambatanNonSiswa)->sortByDesc('TglPinjam');
 
-        $pdf = PDF::loadView('laporan.keterlambatan.cetak', compact('keterlambatan', 'startDate', 'endDate'));
-        return $pdf->stream('laporan-keterlambatan.pdf');
+        $message = $keterlambatan->isEmpty() ? 'Data keterlambatan pada periode ini tidak ditemukan.' : null;
+
+        $pdf = Pdf::loadView('laporan.keterlambatan.cetak', compact('keterlambatan', 'startDate', 'endDate', 'message'));
+        return $pdf->stream('laporan-keterlambatan-' . $startDate . '-sd-' . $endDate . '.pdf');
     }
 
     public function bukuPopuler(Request $request)
     {
-        $startDate = $request->start_date ? Carbon::parse($request->start_date) : Carbon::now()->startOfMonth();
-        $endDate = $request->end_date ? Carbon::parse($request->end_date) : Carbon::now();
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $bukuPopuler = collect();
+        $message = null;
 
-        $bukuPopuler = Buku::withCount(['detailPeminjamanSiswa as peminjaman_siswa_count' => function($query) use ($startDate, $endDate) {
-            $query->whereHas('peminjaman', function($q) use ($startDate, $endDate) {
-                $q->whereBetween('TglPinjam', [$startDate, $endDate]);
-            });
-        }, 'detailPeminjamanNonSiswa as peminjaman_non_siswa_count' => function($query) use ($startDate, $endDate) {
-            $query->whereHas('peminjaman', function($q) use ($startDate, $endDate) {
-                $q->whereBetween('TglPinjam', [$startDate, $endDate]);
-            });
-        }])
-        ->with(['kategori', 'rak'])
-        ->orderByRaw('(peminjaman_siswa_count + peminjaman_non_siswa_count) DESC')
-        ->limit(10)
-        ->get()
-        ->map(function($buku) {
-            $buku->total_peminjaman = $buku->peminjaman_siswa_count + $buku->peminjaman_non_siswa_count;
-            return $buku;
-        });
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $request->validate([
+                'start_date' => 'required|date|before_or_equal:end_date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+            ], [
+                'start_date.required' => 'Tanggal mulai wajib diisi.',
+                'end_date.required' => 'Tanggal akhir wajib diisi.',
+                'start_date.before_or_equal' => 'Tanggal mulai harus sebelum atau sama dengan tanggal akhir.',
+                'end_date.after_or_equal' => 'Tanggal akhir harus setelah atau sama dengan tanggal mulai.',
+            ]);
 
-        return view('laporan.buku-populer.index', compact('bukuPopuler', 'startDate', 'endDate'));
+            $startDateCarbon = Carbon::parse($startDate)->startOfDay();
+            $endDateCarbon = Carbon::parse($endDate)->endOfDay();
+
+            $bukuPopuler = Buku::withCount([
+                'detailPeminjamanSiswa as peminjaman_siswa_count' => function ($query) use ($startDateCarbon, $endDateCarbon) {
+                    $query->whereHas('peminjaman', function ($q) use ($startDateCarbon, $endDateCarbon) {
+                        $q->whereBetween('TglPinjam', [$startDateCarbon, $endDateCarbon]);
+                    });
+                },
+                'detailPeminjamanNonSiswa as peminjaman_non_siswa_count' => function ($query) use ($startDateCarbon, $endDateCarbon) {
+                    $query->whereHas('peminjaman', function ($q) use ($startDateCarbon, $endDateCarbon) {
+                        $q->whereBetween('TglPinjam', [$startDateCarbon, $endDateCarbon]);
+                    });
+                }
+            ])
+                ->with(['kategori', 'rak'])
+                ->orderByRaw('(peminjaman_siswa_count + peminjaman_non_siswa_count) DESC')
+                ->limit(10)
+                ->get()
+                ->map(function ($buku) {
+                    $buku->total_peminjaman = $buku->peminjaman_siswa_count + $buku->peminjaman_non_siswa_count;
+                    return $buku;
+                });
+
+            if ($bukuPopuler->isEmpty()) {
+                $message = 'Data buku populer pada periode ini tidak ditemukan.';
+            }
+        }
+
+        return view('laporan.buku-populer.index', compact('bukuPopuler', 'startDate', 'endDate', 'message'));
     }
 
     public function cetakBukuPopuler(Request $request)
     {
-        $startDate = $request->start_date ? Carbon::parse($request->start_date) : Carbon::now()->startOfMonth();
-        $endDate = $request->end_date ? Carbon::parse($request->end_date) : Carbon::now();
+        $startDate = $request->input('start_date', now()->startOfMonth()->format('Y-m-d'));
+        $endDate = $request->input('end_date', now()->format('Y-m-d'));
 
-        $bukuPopuler = Buku::withCount(['detailPeminjamanSiswa as peminjaman_siswa_count' => function($query) use ($startDate, $endDate) {
-            $query->whereHas('peminjaman', function($q) use ($startDate, $endDate) {
-                $q->whereBetween('TglPinjam', [$startDate, $endDate]);
+        $startDateCarbon = Carbon::parse($startDate)->startOfDay();
+        $endDateCarbon = Carbon::parse($endDate)->endOfDay();
+
+        $bukuPopuler = Buku::withCount([
+            'detailPeminjamanSiswa as peminjaman_siswa_count' => function ($query) use ($startDateCarbon, $endDateCarbon) {
+                $query->whereHas('peminjaman', function ($q) use ($startDateCarbon, $endDateCarbon) {
+                    $q->whereBetween('TglPinjam', [$startDateCarbon, $endDateCarbon]);
+                });
+            },
+            'detailPeminjamanNonSiswa as peminjaman_non_siswa_count' => function ($query) use ($startDateCarbon, $endDateCarbon) {
+                $query->whereHas('peminjaman', function ($q) use ($startDateCarbon, $endDateCarbon) {
+                    $q->whereBetween('TglPinjam', [$startDateCarbon, $endDateCarbon]);
+                });
+            }
+        ])
+            ->with(['kategori', 'rak'])
+            ->orderByRaw('(peminjaman_siswa_count + peminjaman_non_siswa_count) DESC')
+            ->limit(10)
+            ->get()
+            ->map(function ($buku) {
+                $buku->total_peminjaman = $buku->peminjaman_siswa_count + $buku->peminjaman_non_siswa_count;
+                return $buku;
             });
-        }, 'detailPeminjamanNonSiswa as peminjaman_non_siswa_count' => function($query) use ($startDate, $endDate) {
-            $query->whereHas('peminjaman', function($q) use ($startDate, $endDate) {
-                $q->whereBetween('TglPinjam', [$startDate, $endDate]);
-            });
-        }])
-        ->with(['kategori', 'rak'])
-        ->orderByRaw('(peminjaman_siswa_count + peminjaman_non_siswa_count) DESC')
-        ->limit(10)
-        ->get()
-        ->map(function($buku) {
-            $buku->total_peminjaman = $buku->peminjaman_siswa_count + $buku->peminjaman_non_siswa_count;
-            return $buku;
-        });
 
-        $pdf = PDF::loadView('laporan.buku-populer.cetak', compact('bukuPopuler', 'startDate', 'endDate'));
-        return $pdf->stream('laporan-buku-populer.pdf');
-    }
+        $message = $bukuPopuler->isEmpty() ? 'Data buku populer pada periode ini tidak ditemukan.' : null;
 
-    /**
-     * Display a listing of the member report.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function anggota(Request $request)
-    {
-        $querySiswa = Anggota::query();
-        $queryNonSiswa = AnggotaNonSiswa::query();
-
-        if ($request->jenis_anggota == 'siswa') {
-            $anggota = $querySiswa->orderBy('NamaAnggota')->get();
-        } elseif ($request->jenis_anggota == 'non-siswa') {
-            $anggota = $queryNonSiswa->orderBy('Nama')->get();
-        } else {
-            $anggota = $querySiswa->get()->merge($queryNonSiswa->get())->sortBy('NamaAnggota');
-        }
-
-        return view('laporan.anggota.index', compact('anggota'));
-    }
-
-    /**
-     * Generate PDF for member report.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function cetakAnggota(Request $request)
-    {
-        $querySiswa = Anggota::query();
-        $queryNonSiswa = AnggotaNonSiswa::query();
-
-        if ($request->jenis_anggota == 'siswa') {
-            $anggota = $querySiswa->orderBy('NamaAnggota')->get();
-        } elseif ($request->jenis_anggota == 'non-siswa') {
-            $anggota = $queryNonSiswa->orderBy('Nama')->get();
-        } else {
-            $anggota = $querySiswa->get()->merge($queryNonSiswa->get())->sortBy('NamaAnggota');
-        }
-
-        $pdf = PDF::loadView('laporan.anggota.cetak', compact('anggota'));
-        return $pdf->stream('laporan-anggota-' . date('Y-m-d') . '.pdf');
-    }
-
-    /**
-     * Display a listing of the book report.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function buku(Request $request)
-    {
-        $query = Buku::query();
-
-        if ($request->status == 'tersedia') {
-            $query->where('Stok', '>', 0);
-        } elseif ($request->status == 'tidak_tersedia') {
-            $query->where('Stok', '<=', 0);
-        }
-
-        if ($request->search) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('Judul', 'like', "%{$search}%")
-                  ->orWhere('Pengarang', 'like', "%{$search}%");
-            });
-        }
-
-        $buku = $query->orderBy('Judul')->paginate(15);
-
-        return view('laporan.buku.index', compact('buku'));
-    }
-
-    /**
-     * Generate PDF for book report.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function cetakBuku(Request $request)
-    {
-        $query = Buku::query();
-
-        if ($request->status == 'tersedia') {
-            $query->where('Stok', '>', 0);
-        } elseif ($request->status == 'tidak_tersedia') {
-            $query->where('Stok', '<=', 0);
-        }
-
-        if ($request->search) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('Judul', 'like', "%{$search}%")
-                  ->orWhere('Pengarang', 'like', "%{$search}%");
-            });
-        }
-
-        $buku = $query->orderBy('Judul')->get();
-
-        $pdf = PDF::loadView('laporan.buku.cetak', compact('buku'));
-        return $pdf->stream('laporan-buku-' . date('Y-m-d') . '.pdf');
+        $pdf = Pdf::loadView('laporan.buku-populer.cetak', compact('bukuPopuler', 'startDate', 'endDate', 'message'));
+        return $pdf->stream('laporan-buku-populer-' . $startDate . '-sd-' . $endDate . '.pdf');
     }
 }

@@ -44,6 +44,9 @@
     <!-- Helpers -->
     <script src="{{asset('sneat')}}/assets/vendor/js/helpers.js"></script>
     <script src="{{asset('sneat')}}/assets/js/config.js"></script>
+
+    {{-- liblary sweet alert --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </head>
 
   <body>

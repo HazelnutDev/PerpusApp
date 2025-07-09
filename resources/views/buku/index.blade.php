@@ -7,9 +7,12 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Daftar Buku</h5>
+                    @if (Auth::user()->Role === 'admin')
+                        
                     <a href="{{ route('buku.create') }}" class="btn btn-primary">
                         <i class="bx bx-plus"></i> Tambah Buku
                     </a>
+                    @endif
                 </div>
                 <div class="card-body">
                     @if (session('success'))
@@ -49,12 +52,14 @@
                                     <td class="text-center">
                                         <div class="btn-group gap-1" role="group">
                                             <a href="{{ route('buku.show', $item) }}" class="btn btn-info btn-sm" title="Detail"><i class="bx bx-show"></i></a>
+                                            @if (Auth::user()->Role === 'admin')    
                                             <a href="{{ route('buku.edit', $item) }}" class="btn btn-warning btn-sm" title="Edit"><i class="bx bx-edit"></i></a>
                                             <form action="{{ route('buku.destroy', $item) }}" method="POST" style="display:inline-block;">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-danger btn-sm" title="Hapus" onclick="return confirm('Yakin ingin menghapus?')"><i class="bx bx-trash"></i></button>
                                             </form>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>

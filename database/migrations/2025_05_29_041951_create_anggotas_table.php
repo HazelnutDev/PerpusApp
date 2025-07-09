@@ -29,7 +29,7 @@ return new class extends Migration
             $table->string('NoAnggotaN')->primary();
             $table->string('NIP')->unique();
             $table->string('NamaAnggota')->nullable();
-            $table->string('Jabatan')->nullable();
+            $table->string('Pekerjaan')->nullable();
             $table->string('JenisKelamin')->nullable();
             $table->string('TanggalLahir')->nullable();
             $table->string('Alamat')->nullable();

@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Mail\ResetPasswordMail;
@@ -18,7 +17,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         if ($request->isMethod('get')) {
-            if (Auth::guard('petugas')->check()) {
+            if (Auth::check()) {
                 return redirect()->route('dashboard');
             }
             return view('Auth.login');
@@ -34,48 +33,31 @@ class AuthController extends Controller
 
         // Cari user berdasarkan username
         $user = Petugas::where('Username', $credentials['username'])->first();
-
+        
         if (!$user) {
             return back()->withErrors([
-                'login_error' => 'Username atau password salah',
+                'login_error' => 'Username tidak ditemukan',
             ])->withInput($request->only('username'));
         }
 
         // Verifikasi password
         if (!Hash::check($credentials['password'], $user->Password)) {
             return back()->withErrors([
-                'login_error' => 'Username atau password salah',
+                'login_error' => 'Password salah',
             ])->withInput($request->only('username'));
         }
 
-        // Login dengan guard petugas
+        // Login manual
         $remember = $request->has('remember-me');
-
-        if (Auth::guard('petugas')->attempt(
-            ['Username' => $credentials['username'], 'password' => $credentials['password']],
-            $remember
-        )) {
-            $request->session()->regenerate();
-
-            // Tambahkan log untuk debugging
-            Log::info('Login berhasil', [
-                'user_id' => $user->KodePetugas,
-                'username' => $user->Username,
-                'role' => $user->Role
-            ]);
-
-            return redirect()->intended(route('dashboard'));
-        }
-
-        // Jika sampai di sini berarti ada kesalahan
-        return back()->withErrors([
-            'login_error' => 'Terjadi kesalahan saat login. Silakan coba lagi.',
-        ])->withInput($request->only('username'));
+        Auth::login($user, $remember);
+        $request->session()->regenerate();
+        
+        return redirect()->intended(route('dashboard'));
     }
 
     public function logout(Request $request)
     {
-        Auth::guard('petugas')->logout();
+        Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('login');

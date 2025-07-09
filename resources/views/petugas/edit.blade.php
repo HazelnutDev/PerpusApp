@@ -21,22 +21,22 @@
                                     <label class="form-label" for="KodePetugas">Kode Petugas</label>
                                     <input type="text" class="form-control" id="KodePetugas" name="KodePetugas" value="{{ $petugas->KodePetugas }}" readonly />
                                 </div>
-                                <div class="mb-3">
+                                 <div class="mb-3">
                                     <label class="form-label" for="Nama">Nama</label>
                                     <input type="text" class="form-control @error('Nama') is-invalid @enderror" id="Nama" name="Nama" value="{{ old('Nama', $petugas->Nama) }}" required />
                                     @error('Nama')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                <div class="mb-3">
+                            </div>
+                            <div class="col-md-6">
+                                   <div class="mb-3">
                                     <label class="form-label" for="Username">Username</label>
                                     <input type="text" class="form-control @error('Username') is-invalid @enderror" id="Username" name="Username" value="{{ old('Username', $petugas->Username) }}" required />
                                     @error('Username')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-                            </div>
-                            <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label" for="Role">Role</label>
                                     <select class="form-control @error('Role') is-invalid @enderror" id="Role" name="Role" required>
@@ -47,14 +47,14 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                <div class="mb-3">
+                                {{-- <div class="mb-3">
                                     <label class="form-label" for="Password">Password Baru</label>
                                     <input type="password" class="form-control @error('Password') is-invalid @enderror" id="Password" name="Password" />
                                     <small class="text-muted">Kosongkan jika tidak ingin mengubah password</small>
                                     @error('Password')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                         <div class="d-flex justify-content-end">

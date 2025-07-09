@@ -28,14 +28,18 @@
                                         <p class="form-control-static fw-semibold">{{ $anggota->NIS }}</p>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label text-muted">Nama</label>
+                                        <label class="form-label text-muted">Nama Anggota</label>
                                         <p class="form-control-static fw-semibold">{{ $anggota->NamaAnggota }}</p>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label text-muted">Tanggal Lahir</label>
                                         <p class="form-control-static fw-semibold">
-                                            {{ optional($anggota->TanggalLahir)->format('d/m/Y') ?: 'Data Tanggal Lahir Tidak Ada' }}
+                                            {{ optional($anggota->TanggalLahir)->format('d F Y') ?: 'Data Tanggal Lahir Tidak Ada' }}
                                         </p>
+                                    </div>
+                                     <div class="mb-3">
+                                        <label class="form-label text-muted">Jenis Kelamin</label>
+                                        <p class="form-control-static fw-semibold">{{ $anggota->JenisKelamin == 'L' ? 'Laki-Laki' : 'Perempuan' }}</p>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label text-muted">Kelas</label>
@@ -53,8 +57,16 @@
                                         <p class="form-control-static fw-semibold">{{ $anggota->Alamat }}</p>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label text-muted">No Telp/HP</label>
+                                        <label class="form-label text-muted">No Telp</label>
                                         <p class="form-control-static fw-semibold">{{ $anggota->NoTelp }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label text-muted">Nama Orang Tua</label>
+                                        <p class="form-control-static fw-semibold">{{ $anggota->NamaOrtu }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label text-muted">No Telp Orang Tua</label>
+                                        <p class="form-control-static fw-semibold">{{ $anggota->NoTelpOrtu }}</p>
                                     </div>
                                 </div>
                             </div>

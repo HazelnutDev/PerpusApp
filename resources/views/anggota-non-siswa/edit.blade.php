@@ -17,8 +17,15 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
+                                    <label class="form-label" for="NoAnggotaN">No Anggota</label>
+                                    <input type="text" class="form-control @error('NoAnggotaN') is-invalid @enderror" id="NoAnggotaN" name="NoAnggotaN" value="{{ old('NoAnggotaN', $anggotaNonSiswa->NoAnggotaN) }}" required readonly />
+                                    @error('NoAnggotaN')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="mb-3">
                                     <label class="form-label" for="NIP">NIP</label>
-                                    <input type="text" class="form-control @error('NIP') is-invalid @enderror" id="NIP" name="NIP" value="{{ old('NIP', $anggotaNonSiswa->NIP) }}" placeholder="Masukkan NIP" />
+                                    <input type="text" class="form-control @error('NIP') is-invalid @enderror" id="NIP" name="NIP" value="{{ old('NIP', $anggotaNonSiswa->NIP) }}"/>
                                     @error('NIP')
                                     <div class="invalid-feedback">
                                         {{ $message }}
@@ -27,17 +34,17 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label" for="NamaAnggota">Nama Anggota</label>
-                                    <input type="text" class="form-control @error('NamaAnggota') is-invalid @enderror" id="NamaAnggota" name="NamaAnggota" value="{{ old('NamaAnggota', $anggotaNonSiswa->NamaAnggota) }}" placeholder="Masukkan nama anggota" />
+                                    <input type="text" class="form-control @error('NamaAnggota') is-invalid @enderror" id="NamaAnggota" name="NamaAnggota" value="{{ old('NamaAnggota', $anggotaNonSiswa->NamaAnggota) }}" />
                                     @error('NamaAnggota')
                                     <div class="invalid-feedback">
                                         {{ $message }}
                                     </div>
                                     @enderror
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="Jabatan">Jabatan</label>
-                                    <input type="text" class="form-control @error('Jabatan') is-invalid @enderror" id="Jabatan" name="Jabatan" value="{{ old('Jabatan', $anggotaNonSiswa->Jabatan) }}" placeholder="Masukkan jabatan" />
-                                    @error('Jabatan')
+                                 <div class="mb-3">
+                                    <label class="form-label" for="TanggalLahir">Tanggal Lahir</label>
+                                    <input type="date" class="form-control @error('TanggalLahir') is-invalid @enderror" id="TanggalLahir" name="TanggalLahir" value="{{ old('TanggalLahir', $anggotaNonSiswa->TanggalLahir ? $anggotaNonSiswa->TanggalLahir->format('Y-m-d') : '') }}" />
+                                    @error('TanggalLahir')
                                     <div class="invalid-feedback">
                                         {{ $message }}
                                     </div>
@@ -46,10 +53,20 @@
                                 <!-- Tambahkan field lain sesuai kebutuhan -->
                             </div>
                             <div class="col-md-6">
+                                 <div class="mb-3">
+                                    <label class="form-label" for="JenisKelamin">Jenis Kelamin</label>
+                                    <select class="form-control @error('JenisKelamin') is-invalid @enderror" id="JenisKelamin" name="JenisKelamin" required>
+                                        <option value="L" {{ old('JenisKelamin', $anggotaNonSiswa->JenisKelamin) == 'L' ? 'selected' : '' }}>Laki-laki</option>
+                                        <option value="P" {{ old('JenisKelamin', $anggotaNonSiswa->JenisKelamin) == 'P' ? 'selected' : '' }}>Perempuan</option>
+                                    </select>
+                                    @error('JenisKelamin')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                                 <div class="mb-3">
-                                    <label class="form-label" for="TTL">Tanggal Lahir</label>
-                                    <input type="date" class="form-control @error('TTL') is-invalid @enderror" id="TTL" name="TTL" value="{{ old('TTL', $anggotaNonSiswa->TTL ? $anggotaNonSiswa->TTL->format('Y-m-d') : '') }}" />
-                                    @error('TTL')
+                                    <label class="form-label" for="Pekerjaan">Pekerjaan</label>
+                                    <input type="text" class="form-control @error('Pekerjaan') is-invalid @enderror" id="Pekerjaan" name="Pekerjaan" value="{{ old('Pekerjaan', $anggotaNonSiswa->Pekerjaan) }}" required/>
+                                    @error('Pekerjaan')
                                     <div class="invalid-feedback">
                                         {{ $message }}
                                     </div>
@@ -57,7 +74,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label" for="Alamat">Alamat</label>
-                                    <input type="text" class="form-control @error('Alamat') is-invalid @enderror" id="Alamat" name="Alamat" value="{{ old('Alamat', $anggotaNonSiswa->Alamat) }}" placeholder="Masukkan alamat" />
+                                    <input type="text" class="form-control @error('Alamat') is-invalid @enderror" id="Alamat" name="Alamat" value="{{ old('Alamat', $anggotaNonSiswa->Alamat) }}" required/>
                                     @error('Alamat')
                                     <div class="invalid-feedback">
                                         {{ $message }}
@@ -65,27 +82,9 @@
                                     @enderror
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label" for="KodePos">Kode Pos</label>
-                                    <input type="text" class="form-control @error('KodePos') is-invalid @enderror" id="KodePos" name="KodePos" value="{{ old('KodePos', $anggotaNonSiswa->KodePos) }}" placeholder="Masukkan kode pos" />
-                                    @error('KodePos')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="NoTelpHp">No Telp/HP</label>
-                                    <input type="text" class="form-control @error('NoTelpHp') is-invalid @enderror" id="NoTelpHp" name="NoTelpHp" value="{{ old('NoTelpHp', $anggotaNonSiswa->NoTelpHp) }}" placeholder="Masukkan no telp/hp" />
-                                    @error('NoTelpHp')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="TglDaftar">Tanggal Daftar</label>
-                                    <input type="date" class="form-control @error('TglDaftar') is-invalid @enderror" id="TglDaftar" name="TglDaftar" value="{{ old('TglDaftar', $anggotaNonSiswa->TglDaftar ? $anggotaNonSiswa->TglDaftar->format('Y-m-d') : '') }}" />
-                                    @error('TglDaftar')
+                                    <label class="form-label" for="NoTelp">No Telp</label>
+                                    <input type="text" class="form-control @error('NoTelp') is-invalid @enderror" id="NoTelp" name="NoTelp" value="{{ old('NoTelp', $anggotaNonSiswa->NoTelp) }}"/>
+                                    @error('NoTelp')
                                     <div class="invalid-feedback">
                                         {{ $message }}
                                     </div>

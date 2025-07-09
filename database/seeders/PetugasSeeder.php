@@ -15,14 +15,14 @@ class PetugasSeeder extends Seeder
      */
     public function run(): void
     {
-        Petugas::create([
+       Petugas::create([
             'KodePetugas' => 'PTG01',
             'Nama' => 'Admin Perpustakaan',
             'Username' => 'admin',
             'Password' => bcrypt('admin'),
             'Role' => 'admin',
         ]);
-
+        
         Petugas::create([
             'KodePetugas' => 'PTG02',
             'Nama' => 'Petugas Perpustakaan',

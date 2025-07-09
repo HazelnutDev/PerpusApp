@@ -23,10 +23,10 @@ class PeminjamanController extends Controller
         $currentPage = request()->get('page', 1);
 
         // Get both student and non-student loans
-        $peminjamanSiswa = PeminjamanSiswa::with(['anggota', 'detailPeminjaman.buku', 'petugas'])
+        $peminjamanSiswa = PeminjamanSiswa::with(['anggota', 'detailPeminjaman.buku', 'petugas', 'pengembalian'])
             ->latest('TglPinjam');
         
-        $peminjamanNonSiswa = PeminjamanNonSiswa::with(['anggota', 'detailPeminjaman.buku', 'petugas'])
+        $peminjamanNonSiswa = PeminjamanNonSiswa::with(['anggota', 'detailPeminjaman.buku', 'petugas', 'pengembalian'])
             ->latest('TglPinjam');
 
         if ($request->type === 'siswa') {
@@ -65,30 +65,15 @@ class PeminjamanController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'tipe_anggota' => 'required|in:siswa,non-siswa',
             'anggota_id' => 'required|string',
-            'TglPinjam' => [
-                'required',
-                'date',
-                'date_format:Y-m-d',
-            ],
-            'TglJatuhTempo' => [
-                'required',
-                'date',
-                'date_format:Y-m-d',
-                'after:TglPinjam',
-            ],
-            'buku_id' => 'required|array|min:1',
-            'buku_id.*' => 'required|exists:buku,KodeBuku',
-            'jumlah' => 'required|array|min:1',
+            'TglPinjam' => 'required|date',
+            'TglJatuhTempo' => 'required|date|after:TglPinjam',
+            'buku_id' => 'required|array',
+            'buku_id.*' => 'exists:buku,KodeBuku',
+            'jumlah' => 'required|array',
             'jumlah.*' => 'required|integer|min:1'
-        ], [
-            'TglJatuhTempo.after' => 'Tanggal jatuh tempo harus setelah tanggal peminjaman',
-            'buku_id.required' => 'Pilih minimal satu buku',
-            'buku_id.min' => 'Pilih minimal satu buku',
-            'jumlah.*.min' => 'Jumlah tidak boleh kosong',
-            'jumlah.*.integer' => 'Jumlah harus berupa angka',
         ]);
 
         DB::beginTransaction();
@@ -124,7 +109,8 @@ class PeminjamanController extends Controller
                     DetailPeminjamanSiswa::create([
                         'NoPinjamM' => $peminjaman->NoPinjamM,
                         'KodeBuku' => $kodeBuku,
-                        'KodePetugas' => $kodePetugas
+                        'KodePetugas' => $kodePetugas,
+                        'Jumlah' => $jumlah
                     ]);
 
                     // Update stok
@@ -167,8 +153,7 @@ class PeminjamanController extends Controller
             DB::rollback();
             return back()->with('error', $e->getMessage());
         }
-    }    public function show($nomorPinjam)
-    {
+    }    public function show($nomorPinjam)    {
         // Find either student or non-student loan based on the loan number format
         if (strpos($nomorPinjam, 'PJM-S') === 0) {
             $peminjaman = PeminjamanSiswa::with(['anggota', 'detailPeminjaman.buku', 'petugas'])
@@ -191,16 +176,6 @@ class PeminjamanController extends Controller
         }
         return view('peminjaman.show', compact('peminjaman'));
     }   
-
-    // public function edit($id)
-    // {
-    // if (strpos($id, 'PJM-S') === 0) {
-    //     $peminjaman = PeminjamanSiswa::where('NoPinjamM', $id)->firstOrFail();
-    // } else {
-    //     $peminjaman = PeminjamanNonSiswa::where('NoPinjamN', $id)->firstOrFail();
-    // }
-    // return view('peminjaman.edit', compact('peminjaman'));
-    // }
     
     public function edit($nomorPinjam)
     {
@@ -251,30 +226,47 @@ class PeminjamanController extends Controller
     }    
     
     public function destroy($nomorPinjam)
-    {
+    {   
         // Find either student or non-student loan based on the loan number format
-        if (strpos($nomorPinjam, 'PJM-S') === 0) {
-            $peminjaman = PeminjamanSiswa::with('detailPeminjaman.buku')
-                ->where('NoPinjamM', $nomorPinjam)
-                ->firstOrFail();
-            $isSiswa = true;
-        } else {
-            $peminjaman = PeminjamanNonSiswa::with('detailPeminjaman.buku')
-                ->where('NoPinjamN', $nomorPinjam)
-                ->firstOrFail();
-            $isSiswa = false;
-        }
+        // if (strpos($nomorPinjam, 'PJM-S') === 0) {
+        //     $peminjaman = PeminjamanSiswa::with('detailPeminjaman.buku')
+        //         ->where('NoPinjamM', $nomorPinjam)
+        //         ->firstOrFail();
+        //     $isSiswa = true;
+        // } else {
+        //     $peminjaman = PeminjamanNonSiswa::with('detailPeminjaman.buku')
+        //         ->where('NoPinjamN', $nomorPinjam)
+        //         ->firstOrFail();
+        //     $isSiswa = false;
+        // }
 
-        if ($peminjaman->pengembalian) {
+        if (strpos($nomorPinjam, 'PJM-S') === 0) {
+        $peminjaman = PeminjamanSiswa::with(['detailPeminjaman.buku', 'pengembalian'])
+            ->where('NoPinjamM', $nomorPinjam)
+            ->firstOrFail();
+        $isSiswa = true;
+        } else {
+        $peminjaman = PeminjamanNonSiswa::with(['detailPeminjaman.buku', 'pengembalian'])
+            ->where('NoPinjamN', $nomorPinjam)
+            ->firstOrFail();
+        $isSiswa = false;
+}
+
+
+        // if ($peminjaman->pengembalian) {
+        //     return back()->with('error', 'Peminjaman yang sudah dikembalikan tidak dapat dihapus');
+        // }
+        if (optional($peminjaman->pengembalian)->TglKembali) {
             return back()->with('error', 'Peminjaman yang sudah dikembalikan tidak dapat dihapus');
         }
+
 
         DB::beginTransaction();
         try {
             // Restore book stock
             foreach ($peminjaman->detailPeminjaman as $detail) {
                 $buku = Buku::where('KodeBuku', $detail->KodeBuku)->firstOrFail();
-                $buku->update(['Stok' => $buku->Stok + 1]); // Assuming 1 book per detail
+                $buku->update(['Stok' => $buku->Stok + $detail->Jumlah]);
             }
 
             $peminjaman->delete();
@@ -287,6 +279,54 @@ class PeminjamanController extends Controller
             return back()->with('error', 'Gagal menghapus peminjaman');
         }
     }   
+
+//     public function destroy($nomorPinjam)
+// {   
+//     // Find either student or non-student loan based on the loan number format
+//     if (strpos($nomorPinjam, 'PJM-S') === 0) {
+//         $peminjaman = PeminjamanSiswa::with(['detailPeminjaman', 'pengembalian'])
+//             ->where('NoPinjamM', $nomorPinjam)
+//             ->firstOrFail();
+//         $isSiswa = true;
+//     } else {
+//         $peminjaman = PeminjamanNonSiswa::with(['detailPeminjaman', 'pengembalian'])
+//             ->where('NoPinjamN', $nomorPinjam)
+//             ->firstOrFail();
+//         $isSiswa = false;
+//     }
+
+//     // Check if already returned
+//     if (optional($peminjaman->pengembalian)->TglKembali) {
+//         return back()->with('error', 'Peminjaman yang sudah dikembalikan tidak dapat dihapus');
+//     }
+
+//     DB::beginTransaction();
+//     try {
+//         // Restore book stock first
+//         foreach ($peminjaman->detailPeminjaman as $detail) {
+//             $buku = Buku::where('KodeBuku', $detail->KodeBuku)->firstOrFail();
+//             $buku->update(['Stok' => $buku->Stok + $detail->Jumlah]);
+//         }
+
+//         // Delete detail peminjaman first (child records)
+//         if ($isSiswa) {
+//             DetailPeminjamanSiswa::where('NoPinjamM', $nomorPinjam)->delete();
+//         } else {
+//             DetailPeminjamanNonSiswa::where('NoPinjamN', $nomorPinjam)->delete();
+//         }
+
+//         // Then delete the main peminjaman record (parent record)
+//         $peminjaman->delete();
+
+//         DB::commit();
+
+//         return redirect()->route('peminjaman.index')
+//             ->with('success', 'Peminjaman berhasil dihapus');
+//     } catch (\Exception $e) {
+//         DB::rollback();
+//         return back()->with('error', 'Gagal menghapus peminjaman: ' . $e->getMessage());
+//     }
+// }
     
     public function hitungDenda($nomorPinjam)
     {

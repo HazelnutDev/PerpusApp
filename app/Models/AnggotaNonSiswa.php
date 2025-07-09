@@ -18,7 +18,7 @@ class AnggotaNonSiswa extends Model
         'NoAnggotaN',
         'NIP',
         'NamaAnggota',
-        'Jabatan',
+        'Pekerjaan',
         'JenisKelamin',
         'TanggalLahir',
         'Alamat',

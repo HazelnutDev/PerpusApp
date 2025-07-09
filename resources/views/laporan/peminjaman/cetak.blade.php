@@ -1,114 +1,274 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <meta charset="utf-8">
-    <title>Laporan Peminjaman</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Peminjaman - Perpustakaan SMPN 2 Tepal</title>
     <style>
+        
+        @page {
+            size: A4;
+            margin: 2cm 1.5cm;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Times New Roman', serif;
             font-size: 12px;
+            line-height: 1.4;
+            color: #333;
+            padding: 20px 20px 0 20px; /* Menambahkan padding atas dan samping */
         }
-        h1 {
+        
+        .header {
+            margin-bottom: 30px;
             text-align: center;
-            margin-bottom: 20px;
+            position: relative;
+            margin-top: 15px; /* Jarak dari atas */
         }
+        
+        .header-content {
+            display: table;
+            margin: 0 auto;
+            border-collapse: separate;
+        }
+        
+        .logo {
+            width: 70px;
+            height: 70px;
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .logo img {
+            width: 60px;
+            height: 60px;
+          
+        }
+        
+        .school-info {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: left;
+            padding-left: 20px;
+        }
+        
+        .school-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #696cff;
+        }
+        
+        .school-address {
+            font-size: 11px;
+            color: #555;
+            margin-bottom: 3px;
+        }
+        
+        .report-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            text-decoration: underline;
+            text-align: center;
+        }
+        
+        .date-section {
+            text-align: left;
+            margin-bottom: 20px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .table-container {
+            margin-bottom: 40px;
+            padding: 0 10px;
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            font-size: 10px;
         }
+        
         th, td {
-            border: 1px solid #000;
-            padding: 5px;
+            border: 1px solid #333;
+            padding: 6px 4px;
             text-align: left;
+            vertical-align: top;
         }
+        
         th {
-            background-color: #f2f2f2;
+            background-color: #f5f5f5;
+            font-weight: bold;
+            text-align: center;
         }
-        .header {
-            margin-bottom: 20px;
+        
+        .col-no { width: 3%; }
+        .col-kode { width: 8%; }
+        .col-udc { width: 7%; }
+        .col-judul { width: 25%; }
+        .col-penerbit { width: 12%; }
+        .col-pengarang { width: 15%; }
+        .col-tahun { width: 6%; }
+        .col-deskripsi { width: 15%; }
+        .col-isbn { width: 7%; }
+        .col-stok { width: 5%; }
+        
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        
+        .signature-section {
+            margin-top: 50px;
+            text-align: right;
         }
-        .periode {
-            margin-bottom: 10px;
+        
+        .signature-box {
+            display: inline-block;
+            text-align: center;
+            width: 200px;
+        }
+        
+        .signature-title {
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        .signature-space {
+            height: 70px;
+            margin-bottom: 5px;
+        }
+        
+        .signature-name {
+            font-size: 12px;
+            font-weight: bold;
+            text-decoration: underline;
+            padding-bottom: 2px;
+        }
+        
+        /* Styling untuk data contoh */
+        .sample-data {
+            font-size: 9px;
+        }
+        
+        .wrap-text {
+            word-wrap: break-word;
+            word-break: break-word;
+        }
+        
+        /* Media query untuk print/PDF */
+        @media print {
+            body {
+                padding: 15px 15px 0 15px;
+            }
+            
+            .header {
+                margin-top: 10px;
+            }
+            
+            .header-content {
+                page-break-inside: avoid;
+            }
+            
+            .logo {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>LAPORAN PEMINJAMAN BUKU</h1>
-        <div class="periode">
-            Periode: {{ $startDate->format('d/m/Y') }} - {{ $endDate->format('d/m/Y') }}
+        <div class="header-content">
+            <div class="logo">
+                <img src="{{ public_path('assets/icons/reading.svg') }}" alt="icon buku">
+            </div>
+            <div class="school-info">
+                <div class="school-name">PERPUSTAKAAN SMP TEPAL</div>
+                <div class="school-address">Jl. Soekarno Hatta, Kec. Batu Lanteh, Sumbawa, NTB. 84361</div>
+                <div class="school-address">Telp. (0374) 123456 | Email: perpus@smptepal.sch.id</div>
+            </div>
         </div>
     </div>
+    
+    <div class="report-title">Laporan Peminjaman</div>
+    @if ($startDate != $endDate)
+    <div class="date-section">
+        Periode: {{ \Carbon\Carbon::parse($startDate)->format('d-m-Y') }} s.d. {{ \Carbon\Carbon::parse($endDate)->format('d-m-Y') }}
+    </div>
+    @else
+    <div class="date-section">
+        Tanggal: {{ \Carbon\Carbon::now()->format('d M Y') }}
+    </div>
+    @endif
 
-    <table>
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Tanggal Pinjam</th>
-                <th>No Peminjaman</th>
-                <th>Nama Anggota</th>
-                <th>Jenis Anggota</th>
-                <th>Judul Buku</th>
-                <th>Petugas</th>
-                <th>Batas Waktu</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($peminjaman as $index => $pinjam)
-                @foreach($pinjam->detailPeminjaman as $detail)
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>No Peminjaman</th>
+                    <th>Tanggal Pinjam</th>
+                    <th>Nama Peminjam</th>
+                    <th>Jenis Anggota</th>
+                    <th>Daftar Buku</th>
+                    <th>Petugas</th>
+                    <th>Batas Waktu</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data contoh - ganti dengan data dinamis dari Laravel -->
+               @foreach ($peminjaman as $index => $item)
                     <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td>{{ $pinjam->TglPinjam ? (is_string($pinjam->TglPinjam) ? \Carbon\Carbon::parse($pinjam->TglPinjam)->format('d/m/Y') : $pinjam->TglPinjam->format('d/m/Y')) : '-' }}</td>
+                        <td class="text-center">{{ $index + 1 }}</td>
                         <td>
-                            @if($pinjam instanceof \App\Models\PeminjamanSiswa)
-                                {{ $pinjam->NoPinjamM ?? '-' }}
-                            @else
-                                {{ $pinjam->NoPinjamN ?? '-' }}
-                            @endif
+                            @if($item instanceof \App\Models\PeminjamanSiswa)
+                                            {{ $item->NoPinjamM }}
+                                        @else
+                                            {{ $item->NoPinjamN }}
+                                        @endif
                         </td>
-                        <td>
-                            @if($pinjam->anggota)
-                                {{ $pinjam->anggota->NamaAnggota ?? $pinjam->anggota->Nama ?? '-' }}
-                            @else
-                                -
-                            @endif
+                        <td class="text-center">{{ \Carbon\Carbon::parse($item->TglPinjam)->format('d/m/Y') }}</td>
+                        <td>{{ $item->anggota->Nama ?? $item->anggota->NamaAnggota ?? '-' }}</td>
+                        <td class="text-center">
+                            {{ $item instanceof \App\Models\PeminjamanSiswa ? 'Siswa' : 'Non-Siswa' }}
                         </td>
-                        <td>
-                            @if($pinjam instanceof \App\Models\PeminjamanSiswa)
-                                Siswa
-                            @else
-                                Non-Siswa
-                            @endif
+                        <td class="wrap-text">
+                            @foreach ($item->detailPeminjaman as $detail)
+                                - {{ $detail->buku->Judul }}<br>
+                            @endforeach
                         </td>
-                        <td>{{ $detail->buku->Judul ?? '-' }}</td>
-                        <td>{{ $pinjam->petugas->Nama ?? '-' }}</td>
-                        <td>
-                            @if($pinjam->TglJatuhTempo)
-                                {{ is_string($pinjam->TglJatuhTempo) ? \Carbon\Carbon::parse($pinjam->TglJatuhTempo)->format('d/m/Y') : $pinjam->TglJatuhTempo->format('d/m/Y') }}
-                            @else
-                                -
-                            @endif
+                        <td>{{ $item->petugas->Nama }}</td>
+                        <td class="text-center">
+                            {{ \Carbon\Carbon::parse($item->TglKembali)->format('d/m/Y') }}
                         </td>
-                        <td>
-                            @if(isset($pinjam->pengembalian))
-                                <span>Dikembalikan</span>
-                            @else
-                                @php
-                                    $tglJatuhTempo = $pinjam->TglJatuhTempo ? (is_string($pinjam->TglJatuhTempo) ? \Carbon\Carbon::parse($pinjam->TglJatuhTempo) : $pinjam->TglJatuhTempo) : null;
-                                @endphp
-                                @if($tglJatuhTempo && $tglJatuhTempo->lt(now()))
-                                    <span>Terlambat</span>
-                                @else
-                                    <span>Dipinjam</span>
-                                @endif
-                            @endif
+                        <td class="text-center">
+                            {{ $item->Status == 'dikembalikan' ? 'Sudah Kembali' : 'Belum Kembali' }}
                         </td>
                     </tr>
                 @endforeach
-            @endforeach
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="signature-section">
+        <div class="signature-box">
+            <div class="signature-title">Mengetahui,</div>
+            <div class="signature-title">Kepala Perpustakaan</div>
+            <div class="signature-space"></div>
+            <div class="signature-name">(Detiani, S.Pd)</div>
+        </div>
+    </div>
 </body>
 </html>

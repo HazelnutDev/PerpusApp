@@ -16,9 +16,9 @@
                         @csrf
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="mb-3">
+                                 <div class="mb-3">
                                     <label class="form-label" for="KodePetugas">Kode Petugas</label>
-                                    <input type="text" class="form-control @error('KodePetugas') is-invalid @enderror" id="KodePetugas" name="KodePetugas" value="{{ old('KodePetugas') }}" required />
+                                    <input type="text" class="form-control @error('KodePetugas') is-invalid @enderror" id="Judul" name="KodePetugas" value="{{ $kodePetugas }}" readonly />
                                     @error('KodePetugas')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

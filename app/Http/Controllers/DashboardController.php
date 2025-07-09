@@ -8,15 +8,9 @@ use App\Models\Petugas;
 use Illuminate\Http\Request;
 use App\Models\AnggotaNonSiswa;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\View\View
-     */
     public function index()
     {
         // Data counts

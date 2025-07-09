@@ -16,11 +16,11 @@
                         @csrf
                         <div class="row">
                             <div class="col-md-6">
-                                {{-- Judul --}}
+                                {{-- Kode Buku --}}
                                 <div class="mb-3">
-                                    <label class="form-label" for="Judul">Judul</label>
-                                    <input type="text" class="form-control @error('Judul') is-invalid @enderror" id="Judul" name="Judul" value="{{ old('Judul') }}" required />
-                                    @error('Judul')
+                                    <label class="form-label" for="KodeBuku">Kode Buku</label>
+                                    <input type="text" class="form-control @error('KodeBuku') is-invalid @enderror" id="Judul" name="KodeBuku" value="{{ $kodeBuku }}" readonly />
+                                    @error('KodeBuku')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -34,20 +34,21 @@
                                     @enderror
                                 </div>
 
+                                {{-- Judul --}}
+                                <div class="mb-3">
+                                    <label class="form-label" for="Judul">Judul</label>
+                                    <input type="text" class="form-control @error('Judul') is-invalid @enderror" id="Judul" name="Judul" value="{{ old('Judul') }}" required />
+                                    @error('Judul')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+
                                 {{-- Penerbit --}}
                                 <div class="mb-3">
                                     <label class="form-label" for="Penerbit">Penerbit</label>
                                     <input type="text" class="form-control @error('Penerbit') is-invalid @enderror" id="Penerbit" name="Penerbit" value="{{ old('Penerbit') }}" required />
                                     @error('Penerbit')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                {{-- Pengarang --}}
-                                <div class="mb-3">
-                                    <label class="form-label" for="Pengarang">Pengarang</label>
-                                    <input type="text" class="form-control @error('Pengarang') is-invalid @enderror" id="Pengarang" name="Pengarang" value="{{ old('Pengarang') }}" required />
-                                    @error('Pengarang')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -63,6 +64,15 @@
                             </div>
 
                             <div class="col-md-6">
+                                {{-- Pengarang --}}
+                                <div class="mb-3">
+                                    <label class="form-label" for="Pengarang">Pengarang</label>
+                                    <input type="text" class="form-control @error('Pengarang') is-invalid @enderror" id="Pengarang" name="Pengarang" value="{{ old('Pengarang') }}" required />
+                                    @error('Pengarang')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
                                 {{-- Deskripsi --}}
                                 <div class="mb-3">
                                     <label class="form-label" for="Deskripsi">Deskripsi</label>

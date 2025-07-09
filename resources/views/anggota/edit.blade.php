@@ -32,25 +32,35 @@
                                     @enderror
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label" for="Nama">Nama</label>
-                                    <input type="text" class="form-control @error('Nama') is-invalid @enderror" id="Nama" name="Nama" value="{{ old('Nama', $anggota->NamaAnggota) }}" required />
-                                    @error('Nama')
+                                    <label class="form-label" for="NamaAnggota">Nama</label>
+                                    <input type="text" class="form-control @error('Nama') is-invalid @enderror" id="NamaAnggota" name="NamaAnggota" value="{{ old('NamaAnggota', $anggota->NamaAnggota) }}" required />
+                                    @error('NamaAnggota')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="Kelas">Kelas</label>
-                                    <input type="text" class="form-control @error('Kelas') is-invalid @enderror" id="Kelas" name="Kelas" value="{{ old('Kelas', $anggota->Kelas) }}" required />
-                                    @error('Kelas')
+                                 <div class="mb-3">
+                                    <label class="form-label" for="TanggalLahir">Tanggal Lahir</label>
+                                    <input type="date" class="form-control @error('TanggalLahir') is-invalid @enderror" id="TanggalLahir" name="TanggalLahir" value="{{ old('TanggalLahir', $anggota->TanggalLahir ? $anggota->TanggalLahir->format('Y-m-d') : '') }}" />
+                                    @error('TanggalLahir')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                 <div class="mb-3">
+                                    <label class="form-label" for="JenisKelamin">Jenis Kelamin</label>
+                                    <select class="form-control @error('JenisKelamin') is-invalid @enderror" id="JenisKelamin" name="JenisKelamin" required>
+                                        <option value="L" {{ old('JenisKelamin', $anggota->JenisKelamin) == 'L' ? 'selected' : '' }}>Laki-laki</option>
+                                        <option value="P" {{ old('JenisKelamin', $anggota->JenisKelamin) == 'P' ? 'selected' : '' }}>Perempuan</option>
+                                    </select>
+                                    @error('JenisKelamin')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label" for="TTL">Tanggal Lahir</label>
-                                    <input type="date" class="form-control @error('TTL') is-invalid @enderror" id="TTL" name="TTL" value="{{ old('TTL', $anggota->TTL ? $anggota->TTL->format('Y-m-d') : '') }}" />
-                                    @error('TTL')
+                                    <label class="form-label" for="Kelas">Kelas</label>
+                                    <input type="text" class="form-control @error('Kelas') is-invalid @enderror" id="Kelas" name="Kelas" value="{{ old('Kelas', $anggota->Kelas) }}" required />
+                                    @error('Kelas')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -62,9 +72,23 @@
                                     @enderror
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label" for="NoTelpHp">No Telp/HP</label>
-                                    <input type="text" class="form-control @error('NoTelpHp') is-invalid @enderror" id="NoTelpHp" name="NoTelpHp" value="{{ old('NoTelpHp', $anggota->NoTelp) }}" required />
-                                    @error('NoTelpHp')
+                                    <label class="form-label" for="NoTelp">No Telp</label>
+                                    <input type="text" class="form-control @error('NoTelp') is-invalid @enderror" id="NoTelp" name="NoTelp" value="{{ old('NoTelp', $anggota->NoTelp) }}" required />
+                                    @error('NoTelp')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="NamaOrtu">Nama Orang Tua</label>
+                                    <input type="text" class="form-control @error('NamaOrtu') is-invalid @enderror" id="NamaOrtu" name="NamaOrtu" value="{{ old('NamaOrtu', $anggota->NamaOrtu) }}" required />
+                                    @error('NamaOrtu')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="NoTelpOrtu">No Telp Orang Tua</label>
+                                    <input type="text" class="form-control @error('NoTelpOrtu') is-invalid @enderror" id="NoTelpOrtu" name="NoTelpOrtu" value="{{ old('NoTelpOrtu', $anggota->NoTelpOrtu) }}" required />
+                                    @error('NoTelpOrtu')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>

@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\AnggotaNonSiswa;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Helpers\KodeGenerator;
 
 class AnggotaNonSiswaController extends Controller
 {
+    protected function generatorNoNonAnggota (){
+        return KodeGenerator::generate(AnggotaNonSiswa::class, 'NoAnggotaN', 'N', 3);
+    }
     public function index()
     {
         $anggota_non_siswa = AnggotaNonSiswa::latest()->paginate(10);
@@ -16,7 +20,8 @@ class AnggotaNonSiswaController extends Controller
 
     public function create()
     {
-        return view('anggota-non-siswa.create');
+        $noAnggota = $this->generatorNoNonAnggota();
+        return view('anggota-non-siswa.create', compact("noAnggota"));
     }
 
     public function store(Request $request)
@@ -25,12 +30,15 @@ class AnggotaNonSiswaController extends Controller
             'NoAnggotaN' => 'required|string|unique:anggota_non_siswa,NoAnggotaN',
             'NIP' => 'required|string|max:20',
             'NamaAnggota' => 'required|string|max:255',
-            'Jabatan' => 'required|string|max:100',
+            'JenisKelamin' => 'required|in:L,P',
+            'Pekerjaan' => 'required|string|max:100',
             'TanggalLahir' => 'required|date',
             'Alamat' => 'required|string',
             'NoTelp' => 'required|string|max:15',
         ]);
 
+        $NoAnggota = $this->generatorNoNonAnggota();
+        $request->merge(['NoAnggotaN' => $NoAnggota]);
         AnggotaNonSiswa::create($request->all());
 
         return redirect()->route('anggota-non-siswa.index')
@@ -53,7 +61,7 @@ class AnggotaNonSiswaController extends Controller
         $request->validate([
             'NIP' => 'required|string|max:20',
             'NamaAnggota' => 'required|string|max:255',
-            'Jabatan' => 'required|string|max:100',
+            'Pekerjaan' => 'required|string|max:100',
             'TanggalLahir' => 'required|date',
             'JenisKelamin' => 'required|in:L,P',
             'Alamat' => 'required|string',

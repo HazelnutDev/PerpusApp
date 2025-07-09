@@ -53,7 +53,23 @@
                                     <td>{{ $kembali->peminjaman->anggota->NamaAnggota }}</td>
                                     <td>{{ $kembali->peminjaman->TglPinjam }}</td>
                                     <td>{{ $kembali->TglKembali }}</td>
-                                    <td>Rp {{ number_format($kembali->Denda, 0, ',', '.') }}
+                                    @php
+                                        $jatuhTempo = Carbon\Carbon::parse($kembali->peminjaman->TglJatuhTempo);
+                                        $tglKembali = Carbon\Carbon::parse($kembali->TglKembali);
+                                        $hariTerlambat = $tglKembali->gt($jatuhTempo) ? $tglKembali->diffInDays($jatuhTempo) : 0;
+                                        $dendaPerHari = 1000;
+                                        $dendaHitung = $hariTerlambat * $dendaPerHari;
+                                    @endphp
+
+                                    <td>
+                                        Rp {{ number_format($kembali->Denda, 0, ',', '.') }}
+                                        {{-- @if($hariTerlambat < 0)
+                                        <br><span class="badge bg-danger">Terlambat {{ $hariTerlambat }} hari</span>
+                                        @else
+                                        <br><span class="badge bg-success">Tepat Waktu</span>
+                                        @endif --}}
+                                    </td>
+                                    {{-- <td>Rp {{ number_format($kembali->Denda, 0, ',', '.') }}
                                         @php
                                             $jatuhTempo = $kembali->peminjaman->TglJatuhTempo;
                                             $tglKembali = $kembali->TglKembali;
@@ -68,7 +84,7 @@
                                         @else
                                             <br><span class="badge bg-success">Tepat Waktu</span>
                                         @endif
-                                    </td>
+                                    </td> --}}
                                     <td class="text-center">
                                         <div class="btn-group gap-2" role="group">
                                             <a href="{{ route('pengembalian.show', $kembali instanceof \App\Models\PengembalianSiswa ? $kembali->NoKembaliM : $kembali->NoKembaliN) }}"

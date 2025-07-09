@@ -57,7 +57,7 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div><div class="mb-3">
-                            <label class="form-label">Detail Buku</label>
+                            <label class="form-label">Buku Yang Ingin Di Pinjam</label>
                             <div id="detail-buku-container">
                                 <div class="row detail-buku-row mb-2">
                                     <div class="col-md-5">
