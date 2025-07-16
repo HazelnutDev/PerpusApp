@@ -20,10 +20,12 @@ class Petugas extends Authenticatable
         'Username',
         'Nama',
         'Password',
-        'Role'
+        'Role',
+        'foto'
     ];
     protected $casts = [
         'Role'=> 'string',
+        'foto' => 'string'
     ];
     protected $hidden = [
         'Password', 
