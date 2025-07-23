@@ -27,6 +27,8 @@
                             <button type="submit" class="btn btn-primary me-2">Filter</button>
                             <a href="{{ route('laporan.keterlambatan.cetak', ['start_date' => request('start_date'), 'end_date' => request('end_date')]) }}" 
                                class="btn btn-secondary" target="_blank">Cetak PDF</a>
+                            <a href="{{ route('laporan.keterlambatan.excel', ['start_date' => request('start_date'), 'end_date' => request('end_date')]) }}" 
+                               class="btn btn-info ms-2" target="_blank">Cetak Excel</a>
                         </div>
                     </div>
                 </div>

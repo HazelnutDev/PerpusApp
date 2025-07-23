@@ -29,21 +29,16 @@ class AnggotaNonSiswaFactory extends Factory
             'Guru Matematika'
         ];
 
-        $nip = [
-            '196508121990032001',
-            '198703152010011004'
-        ];
-
         $index = (self::$noAnggota - 1) % 2;
 
         $tanggalLahir = $this->faker->dateTimeBetween('-95 years', '-20 years');
 
         return [
             'NoAnggotaN' => 'N' . str_pad(self::$noAnggota++, 3, '0', STR_PAD_LEFT),
-            'NIP' => $nip[$index],
+            'NIP' => $this->faker->unique()->numerify('19##########0###'),
             'NamaAnggota' => $namaGuru[$index],
             'Pekerjaan' => $Pekerjaan[$index],
-            'JenisKelamin' => $index % 2 == 0 ? 'L' : 'P', 
+            'JenisKelamin' => $index % 2 == 0 ? 'L' : 'P',
             'TanggalLahir' => $tanggalLahir->format('d-m-Y'),
             'Alamat' => $this->faker->streetAddress() . ', ' . $this->faker->city(),
             'NoTelp' => '08' . $this->faker->numerify('##########'),

@@ -4,10 +4,10 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 
-class AnggotaSeeder extends Seeder
+class AnggotaNonSiswaSeeder extends Seeder
 {
     public function run(): void
     {
-        \App\Models\Anggota::factory(10)->create();
+        \App\Models\AnggotaNonSiswa::factory(5)->create();
     }
-}
+} 

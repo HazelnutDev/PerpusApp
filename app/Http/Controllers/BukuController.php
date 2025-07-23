@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Buku;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class BukuController extends Controller
 {
     public function index()
     {
+        // $buku = Buku::latest()->take(4)->get();
         $buku = Buku::latest()->paginate(10);
         return view('buku.index', compact('buku'));
     }
@@ -34,21 +36,24 @@ class BukuController extends Controller
             'Deskripsi' => 'required|string|max:300',
             'ISBN' => 'required|string|unique:buku,ISBN',
             'Stok' => 'required|integer|min:0',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $lastBook = Buku::orderBy('KodeBuku', 'desc') ->first();
-
+        $lastBook = Buku::orderBy('KodeBuku', 'desc')->first();
         if ($lastBook) {
-        $lastNumber = intval(substr($lastBook->KodeBuku, 1));
-        $newNumber = $lastNumber + 1;
+            $lastNumber = intval(substr($lastBook->KodeBuku, 1));
+            $newNumber = $lastNumber + 1;
         } else {
-        $newNumber = 1; 
+            $newNumber = 1;
         }
-
         $kodeBuku = 'B' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
         $request->merge(['KodeBuku' => $kodeBuku]);
 
-        Buku::create($request->all());
+        $data = $request->all();
+        if ($request->hasFile('foto')) {
+            $data['foto'] = $request->file('foto')->store('buku', 'public');
+        }
+        Buku::create($data);
         return redirect()->route('buku.index')->with('success', 'Buku berhasil ditambahkan');
     }
 
@@ -73,9 +78,17 @@ class BukuController extends Controller
             'Deskripsi' => 'nullable|string',
             'ISBN' => 'nullable|string|unique:buku,ISBN,' . $buku->KodeBuku . ',KodeBuku',
             'Stok' => 'required|integer|min:0',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-        
-        $buku->update($request->all());
+        $data = $request->all();
+        if ($request->hasFile('foto')) {
+            // Hapus foto lama jika ada
+            if ($buku->foto && Storage::disk('public')->exists($buku->foto)) {
+                Storage::disk('public')->delete($buku->foto);
+            }
+            $data['foto'] = $request->file('foto')->store('buku', 'public');
+        }
+        $buku->update($data);
         return redirect()->route('buku.index')->with('success', 'Buku berhasil diperbarui');
     }
 

@@ -42,6 +42,7 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('laporan')->name('laporan.')->group(function () {
             Route::get('laporanBuku', [LaporanController::class, 'laporanBuku'])->name('laporanBuku.index');
             Route::get('laporanBuku/cetak', [LaporanController::class, 'cetakLaporanBuku'])->name('laporanBuku.cetak');
+            Route::get('laporanBuku/excel', [LaporanController::class, 'exportLaporanBukuExcel'])->name('laporanBuku.excel');
             Route::get('laporanAnggota', [LaporanController::class, 'laporanAnggota'])->name('laporanAnggota.index');
             Route::get('laporanAnggota/cetak', [LaporanController::class, 'cetakLaporanAnggota'])->name('laporanAnggota.cetak');
         });
@@ -68,6 +69,14 @@ Route::middleware(['auth'])->group(function () {
             Route::get('peminjaman/cetak', [LaporanController::class, 'cetakPeminjaman'])->name('peminjaman.cetak');
             Route::get('laporanPengembalian', [LaporanController::class, 'laporanPengembalian'])->name('laporanPengembalian.index');
             Route::get('laporanPengembalian/cetak', [LaporanController::class, 'cetakLaporanPengembalian'])->name('laporanPengembalian.cetak');
+        });
+        Route::prefix('laporan')->name('laporan.')->group(function () {
+            Route::get('laporanBuku/excel', [LaporanController::class, 'exportLaporanBukuExcel'])->name('laporanBuku.excel');
+            Route::get('laporanAnggota/excel', [LaporanController::class, 'exportLaporanAnggotaExcel'])->name('laporanAnggota.excel');
+            Route::get('peminjaman/excel', [LaporanController::class, 'exportPeminjamanExcel'])->name('peminjaman.excel');
+            Route::get('laporanPengembalian/excel', [LaporanController::class, 'exportLaporanPengembalianExcel'])->name('laporanPengembalian.excel');
+            Route::get('keterlambatan/excel', [LaporanController::class, 'exportKeterlambatanExcel'])->name('keterlambatan.excel');
+            Route::get('buku-populer/excel', [LaporanController::class, 'exportBukuPopulerExcel'])->name('buku-populer.excel');
         });
     });
     

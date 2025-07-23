@@ -20,6 +20,7 @@ return new class extends Migration
             $table->text('Deskripsi')->nullable();
             $table->string('ISBN')->unique();
             $table->integer('Stok')->default(0);
+            $table->string('foto')->nullable();
             $table->timestamps();
         });
     }

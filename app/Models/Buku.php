@@ -25,6 +25,7 @@ class Buku extends Model
         'Deskripsi',
         'ISBN',
         'Stok',
+        'foto',
     ];
 
     public function detailPeminjamanSiswa(): HasMany

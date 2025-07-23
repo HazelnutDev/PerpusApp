@@ -22,11 +22,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrapFive();
+
         if (env('APP_ENV') !== 'local') {
             URL::forceScheme('https');
         }
 
-        // deteksi otomatis: http atau https
+        //deteksi otomatis: http atau https
         if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
             URL::forceScheme('https');
         }

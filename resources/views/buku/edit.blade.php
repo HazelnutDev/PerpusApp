@@ -12,7 +12,7 @@
                     </a>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('buku.update', $buku->KodeBuku) }}" method="POST">
+                    <form action="{{ route('buku.update', $buku->KodeBuku) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('put')
                         <div class="row">
@@ -97,6 +97,20 @@
                                     <label class="form-label" for="Stok">Stok</label>
                                     <input type="number" class="form-control @error('Stok') is-invalid @enderror" id="Stok" name="Stok" value="{{ old('Stok', $buku->Stok) }}" required />
                                     @error('Stok')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                {{-- Foto Buku --}}
+                                <div class="mb-3">
+                                    <label class="form-label" for="foto">Foto Buku</label>
+                                    @if($buku->foto)
+                                        <div class="mb-2">
+                                            <img src="{{ asset('storage/' . $buku->foto) }}" alt="Foto Buku" width="100">
+                                        </div>
+                                    @endif
+                                    <input type="file" class="form-control @error('foto') is-invalid @enderror" id="foto" name="foto" accept="image/*">
+                                    @error('foto')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>

@@ -48,6 +48,8 @@
                             @if ($peminjaman->isNotEmpty())
                                 <a href="{{ route('laporan.peminjaman.cetak', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
                                     class="btn btn-success" target="_blank">Cetak PDF</a>
+                                <a href="{{ route('laporan.peminjaman.excel', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
+                                    class="btn btn-info ms-2" target="_blank">Cetak Excel</a>
                             @endif
                         </div>
                     </div>
