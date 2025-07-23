@@ -19,7 +19,7 @@ class BukuSeeder extends Seeder
             'Deskripsi' => 'Buku pelajaran matematika untuk siswa SMP kelas 7.',
             'ISBN' => '9786020000011',
             'Stok' => 10,
-            'foto' => 'buku\matematika.jpg',
+            'foto' => 'image\buku\matematika.jpg',
         ],
         [
             'KodeBuku' => 'B002',
@@ -31,7 +31,7 @@ class BukuSeeder extends Seeder
             'Deskripsi' => 'Buku pelajaran IPA mencakup fisika, kimia, dan biologi.',
             'ISBN' => '9786020000022',
             'Stok' => 12,
-            'foto' => 'buku\ipa.jpg',
+            'foto' => 'image\buku\ipa.jpg',
         ],
         [
             'KodeBuku' => 'B003',
@@ -43,7 +43,7 @@ class BukuSeeder extends Seeder
             'Deskripsi' => 'Ilmu Pengetahuan Sosial untuk kelas 9 SMP.',
             'ISBN' => '9786020000033',
             'Stok' => 11,
-            'foto' => 'buku\ips.png',
+            'foto' => 'image\buku\ips.png',
         ],
         [
             'KodeBuku' => 'B004',
@@ -55,7 +55,7 @@ class BukuSeeder extends Seeder
             'Deskripsi' => 'Buku Bahasa Indonesia untuk siswa SMP.',
             'ISBN' => '9786020000044',
             'Stok' => 9,
-            'foto' => 'buku\indonesia.png',
+            'foto' => 'image\buku\indonesia.png',
         ],
         [
             'KodeBuku' => 'B005',
@@ -67,7 +67,7 @@ class BukuSeeder extends Seeder
             'Deskripsi' => 'Materi Bahasa Inggris tingkat menengah.',
             'ISBN' => '9786020000055',
             'Stok' => 10,
-            'foto' => 'buku\inggris.jpg',
+            'foto' => 'image\buku\inggris.jpg',
         ],
         [
             'KodeBuku' => 'B006',
@@ -79,7 +79,7 @@ class BukuSeeder extends Seeder
             'Deskripsi' => 'Buku Seni Budaya untuk SMP kelas 9.',
             'ISBN' => '9786020000066',
             'Stok' => 7,
-            'foto' => 'buku\senibudaya.jpg',
+            'foto' => 'image\buku\senibudaya.jpg',
         ],
         [
             'KodeBuku' => 'B007',
@@ -91,7 +91,7 @@ class BukuSeeder extends Seeder
             'Deskripsi' => 'Buku prakarya dan kewirausahaan untuk siswa SMP.',
             'ISBN' => '9786020000077',
             'Stok' => 8,
-            'foto' => 'buku\prakaya.png',
+            'foto' => 'image\buku\prakaya.png',
         ],
         [
             'KodeBuku' => 'B008',
@@ -103,7 +103,7 @@ class BukuSeeder extends Seeder
             'Deskripsi' => 'Buku Pendidikan Agama Islam untuk siswa SMP.',
             'ISBN' => '9786020000088',
             'Stok' => 10,
-            'foto' => 'buku\agama.jpg',
+            'foto' => 'image\buku\agama.jpg',
         ],
         [
             'KodeBuku' => 'B009',
@@ -115,7 +115,7 @@ class BukuSeeder extends Seeder
             'Deskripsi' => 'Penguatan karakter siswa melalui nilai-nilai moral.',
             'ISBN' => '9786020000099',
             'Stok' => 6,
-            'foto' => 'buku/karakter.jpg',
+            'foto' => 'image\buku\karakter.jpg',
         ],
         [
             'KodeBuku' => 'B010',
@@ -127,7 +127,7 @@ class BukuSeeder extends Seeder
             'Deskripsi' => 'Tips belajar mandiri dan aktif untuk siswa SMP.',
             'ISBN' => '9786020000100',
             'Stok' => 10,
-            'foto' => 'buku\MBE.jpg',
+            'foto' => 'image\buku\MBE.jpg',
         ],
         ];
 
