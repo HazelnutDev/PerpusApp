@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Petugas;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
+use App\Helpers\KodeGenerator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use App\Helpers\KodeGenerator;
 
 class PetugasController extends Controller
 {
@@ -136,49 +137,161 @@ class PetugasController extends Controller
      */
     public function updateProfile(Request $request)
     {
-        $petugas = Petugas::findOrFail(Auth::id());
+        try {
+            // Debug log request
+            Log::info('Update profile request:', [
+                'has_file' => $request->hasFile('foto'),
+                'file_valid' => $request->hasFile('foto') ? $request->file('foto')->isValid() : false,
+                'all_params' => $request->except(['foto', 'password', 'password_confirmation', 'current_password'])
+            ]);
 
-        $request->validate([
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'Nama' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:petugas,Username,' . $petugas->KodePetugas . ',KodePetugas',
-            'current_password' => 'required|string',
-            'password' => 'nullable|string|min:4|confirmed',
-        ], [
-            'foto.image' => 'File harus berupa gambar.',
-            'foto.mimes' => 'Format file harus JPEG, PNG, atau JPG.',
-            'foto.max' => 'Ukuran file maksimal 2MB.',
-            'Nama.required' => 'Nama wajib diisi.',
-            'username.required' => 'Username wajib diisi.',
-            'username.unique' => 'Username sudah digunakan.',
-            'current_password.required' => 'Password lama wajib diisi.',
-            'password.min' => 'Password minimal 4 karakter.',
-            'password.confirmed' => 'Konfirmasi password tidak sesuai.',
-        ]);
+            $petugas = Petugas::findOrFail(Auth::id());
 
-        if (!Hash::check($request->current_password, $petugas->Password)) {
-            return back()->withErrors(['current_password' => 'Password lama salah.']);
-        }
+            // Jika ada file foto yang diupload
+            if ($request->hasFile('foto') && $request->file('foto')->isValid()) {
+                // Validasi file
+                $validated = $request->validate([
+                    'foto' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+                ]);
 
-        $data = [
-            'Nama' => $request->Nama,
-            'Username' => $request->username,
-        ];
+                // Pastikan folder penyimpanan ada
+                $storagePath = storage_path('app/public/petugas');
+                if (!file_exists($storagePath)) {
+                    mkdir($storagePath, 0755, true);
+                }
 
-        if ($request->filled('password')) {
-            $data['Password'] = Hash::make($request->password);
-        }
+                // Hapus foto lama jika ada
+                if ($petugas->foto && Storage::disk('public')->exists($petugas->foto)) {
+                    Storage::disk('public')->delete($petugas->foto);
+                }
 
-        if ($request->hasFile('foto')) {
-            if ($petugas->foto && Storage::disk('public')->exists($petugas->foto)) {
-                Storage::disk('public')->delete($petugas->foto);
+                try {
+                    // Upload foto baru
+                    $file = $request->file('foto');
+                    $filename = 'profile_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $path = $file->storeAs('petugas', $filename, 'public');
+
+                    // Update path foto di database (hanya path relatif)
+                    $relativePath = 'petugas/' . $filename;
+                    $petugas->foto = $relativePath;
+                    $petugas->save();
+
+                    // Siapkan URL foto untuk respons
+                    $fotoUrl = asset('storage/' . $relativePath);
+
+                    Log::info('Foto profil berhasil diupload', [
+                        'path' => $relativePath,
+                        'url' => $fotoUrl,
+                        'full_path' => storage_path('app/public/' . $relativePath)
+                    ]);
+
+                    if ($request->ajax() || $request->wantsJson()) {
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Foto profil berhasil diupdate!',
+                            'foto_url' => $fotoUrl
+                        ]);
+                    }
+
+                    return redirect()->route('petugas.profil')->with([
+                        'success' => 'Foto profil berhasil diupdate!',
+                        'foto_url' => $fotoUrl
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Error uploading profile photo:', [
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    
+                    if ($request->ajax() || $request->wantsJson()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Gagal mengupload foto: ' . $e->getMessage()
+                        ], 500);
+                    }
+                    return back()->withErrors(['foto' => 'Gagal mengupload foto: ' . $e->getMessage()]);
+                }
             }
-            $data['foto'] = $request->file('foto')->store('petugas', 'public');
+
+            // Validasi untuk update data profil
+            $request->validate([
+                'Nama' => 'required|string|max:255',
+                'username' => 'required|string|max:255|unique:petugas,Username,' . $petugas->KodePetugas . ',KodePetugas',
+                'current_password' => 'required|string',
+                'password' => 'nullable|string|min:4|confirmed',
+            ]);
+
+            try {
+                // Verifikasi password lama
+                if (!Hash::check($request->current_password, $petugas->Password)) {
+                    if ($request->ajax() || $request->wantsJson()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Password lama salah.'
+                        ], 422);
+                    }
+                    return back()->withErrors(['current_password' => 'Password lama salah.']);
+                }
+
+                // Update data profil
+                $petugas->Nama = $request->Nama;
+                $petugas->Username = $request->username;
+
+                // Update password jika diisi
+                if ($request->filled('password')) {
+                    $petugas->Password = Hash::make($request->password);
+                }
+
+                $petugas->save();
+
+                Log::info('Profil berhasil diupdate', [
+                    'user_id' => $petugas->KodePetugas,
+                    'changes' => $petugas->getChanges()
+                ]);
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Profil berhasil diperbarui!',
+                        'foto_url' => $petugas->foto ? asset('storage/' . $petugas->foto) : asset('image/profile.png')
+                    ]);
+                }
+
+                return redirect()->route('petugas.profil')->with('success', 'Profil berhasil diperbarui!');
+
+            } catch (\Exception $e) {
+                Log::error('Error updating profile data:', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Gagal memperbarui profil: ' . $e->getMessage()
+                    ], 500);
+                }
+                return back()->withErrors(['error' => 'Gagal memperbarui profil: ' . $e->getMessage()]);
+            }
+
+        } catch (\Exception $e) {
+            // Log error
+            Log::error('Error in updateProfile:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            $errorMessage = 'Terjadi kesalahan: ' . $e->getMessage();
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage
+                ], 500);
+            }
+
+            return back()->withErrors(['error' => $errorMessage]);
         }
-
-        $petugas->update($data);
-
-        return redirect()->route('petugas.profil')->with('success', 'Profil berhasil diperbarui!');
     }
 
     /**
